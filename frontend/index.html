@@ -1,4 +1,60 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>MarketProp</title><link rel="stylesheet" href="static/styles.css"></head><body>
-<div id="authScreen" class="auth-screen"><div class="auth-card"><div class="auth-logo">MP</div><h1>MarketProp</h1><p>Un link. Todo tu marketing.</p><div class="tabs"><button class="tab active" onclick="setAuthMode('login')">Ingresar</button><button class="tab" onclick="setAuthMode('register')">Crear cuenta</button></div><div id="loginForm"><input id="loginEmail" placeholder="Email"><input id="loginPassword" type="password" placeholder="Contraseña"><button onclick="login()">Entrar</button></div><div id="registerForm" class="hidden"><input id="regName" placeholder="Tu nombre"><input id="regOrg" placeholder="Nombre de tu inmobiliaria"><input id="regEmail" placeholder="Email"><input id="regPassword" type="password" placeholder="Contraseña"><button onclick="register()">Crear cuenta</button></div><div id="authMessage" class="auth-message"></div><small>v0.2.0 Alpha · Login local</small></div></div>
-<div id="appScreen" class="app hidden"><aside class="sidebar"><div class="brand"><div class="logo">MP</div><div><strong>MarketProp</strong><span id="orgName">Enterprise</span></div></div><nav><button class="nav active" onclick="showSection('home')">🏠 MarketHome™</button><button class="nav" onclick="showSection('control')">👑 MarketControl™</button><button class="nav" onclick="showSection('plans')">💳 Planes</button></nav><div class="plan-card"><div class="crown">👑</div><strong id="planName">Plan Básico</strong><p>Publicaciones este mes</p><div class="bar"><span></span></div><small>128 / 500</small></div></aside><main><header class="topbar"><div><p class="eyebrow">WORKSPACE DE MARKETING INMOBILIARIO</p><h1>MarketProp Enterprise</h1></div><div class="profile"><span id="userName">Usuario</span> · Admin <button class="logout" onclick="logout()">Salir</button></div></header>
-<section id="home" class="section active-section"><div class="hero"><div><h2 id="welcomeTitle">¡Bienvenido! 👋</h2><p>Transformá un link en todo el marketing que necesitás para <b>vender más propiedades.</b></p><div class="steps"><span>1. Pegá el link</span><span>2. MarketAI analiza</span><span>3. Publicá donde quieras</span></div></div></div><div class="generator-card"><div class="generator-main"><label>GENERÁ CONTENIDO DESDE UN LINK</label><p>Pegá el enlace de cualquier propiedad</p><div class="input-row"><input id="propertyUrl" placeholder="https://www.tuinmobiliaria.com/propiedad/xxxxx"><button onclick="generateContent()">✨ Generar todo el contenido</button></div><div id="status" class="status">⏱ Tiempo promedio estimado: 12 segundos</div><div id="scan" class="scan"></div></div></div><div id="results" class="results"></div></section><section id="control" class="section"><h2>👑 MarketControl™</h2><div class="stats"><div><strong>1</strong><span>Clientes activos</span></div><div><strong>$0</strong><span>MRR</span></div><div><strong>1</strong><span>Organizaciones</span></div></div></section><section id="plans" class="section"><h2>💳 Planes</h2><div class="pricing"><div class="price-card"><h3>Plan Básico</h3><p>Para agentes independientes.</p></div><div class="price-card featured"><h3>Plan Pro</h3><p>Para inmobiliarias activas.</p></div><div class="price-card"><h3>Plan Business</h3><p>Para empresas grandes.</p></div></div></section></main></div><script src="static/app.js"></script></body></html>
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MarketProp</title><link rel="stylesheet" href="static/styles.css"></head>
+<body>
+<div id="toast" class="toast hidden"></div>
+<div id="authScreen" class="auth-screen">
+  <div class="auth-shell">
+    <div class="auth-brand"><div class="logo-mark">MP</div><h1>MarketProp</h1><p>Inteligencia comercial para inmobiliarias.</p></div>
+    <div class="auth-card">
+      <div class="tabs"><button id="loginTab" class="active" onclick="setAuth('login')">Ingresar</button><button id="registerTab" onclick="setAuth('register')">Crear cuenta</button></div>
+      <div id="loginForm"><input id="loginEmail" placeholder="Email"><input id="loginPassword" type="password" placeholder="Contraseña"><button id="loginBtn" onclick="login()">Entrar</button></div>
+      <div id="registerForm" class="hidden"><input id="regName" placeholder="Tu nombre"><input id="regOrg" placeholder="Nombre de tu inmobiliaria"><input id="regEmail" placeholder="Email"><input id="regPassword" type="password" placeholder="Contraseña"><button id="registerBtn" onclick="register()">Crear cuenta</button></div>
+      <small>v0.3.2 Content Engine</small>
+    </div>
+  </div>
+</div>
+
+<div id="appScreen" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo-mark small">MP</div><div><strong>MarketProp</strong><span id="orgName">Tu inmobiliaria</span></div></div>
+    <nav>
+      <button class="nav active" onclick="show('home',this)">⌂ Inicio</button>
+      <button class="nav" onclick="show('props',this)">⌁ Propiedades</button>
+      <button class="nav" onclick="show('vars',this)">✦ Variaciones IA</button>
+      <button class="nav" onclick="show('library',this)">▣ Biblioteca</button>
+      <button class="nav" onclick="show('videos',this)">▶ Escaneo Videos</button>
+      <button class="nav featured" onclick="show('hookAgent',this)">✦ Agente Hook</button>
+      <button class="nav" onclick="show('campaigns',this)">◈ Campañas</button>
+      <button class="nav" onclick="show('stats',this)">△ Estadísticas</button>
+      <button class="nav" onclick="show('admin',this)">◎ Panel Admin</button>
+      <button class="nav" onclick="show('plans',this)">◇ Planes</button>
+    </nav>
+    <div class="usage-card"><div class="usage-top"><b id="planName">Plan Básico</b><span>34%</span></div><p>Contenido generado este mes</p><div class="bar"><span></span></div><small>128 / 500 publicaciones</small></div>
+  </aside>
+  <main>
+    <header class="topbar"><div><p class="eyebrow">WORKSPACE DE MARKETING INMOBILIARIO</p><h1 id="welcomeTitle">Hola</h1></div><div class="top-actions"><button class="ghost" onclick="notifySoon()">Ayuda</button><button class="ghost" onclick="logout()">Salir</button></div></header>
+    <section id="home" class="section active-section">
+      <div class="hero-card">
+        <div class="hero-copy">
+          <div class="pill">MarketMind activo</div>
+          <h2 class="compact-hero"><span>La IA hace todo el marketing.</span><br>Vos vendé propiedades, ganá tiempo.</h2>
+          <p>Pegá el link de una propiedad y MarketProp crea automáticamente publicaciones, anuncios y contenido optimizado para cada plataforma.</p>
+        </div>
+        <div class="hero-side"><h3>Agentes activos</h3><div class="feature-grid"><button>Facebook</button><button>Instagram</button><button>TikTok</button><button>WhatsApp</button><button>Mercado Libre</button><button>Meta Ads</button></div></div>
+      </div>
+      <div class="generator"><label>LINK DE LA PROPIEDAD</label><div class="input-row"><input id="propertyUrl" placeholder="https://www.tuinmobiliaria.com/propiedad/xxxxx"><select id="globalStyle"><option value="auto">Automático</option><option value="profesional">Profesional</option><option value="premium">Premium</option><option value="urgencia">Urgencia</option><option value="inversor">Inversor</option></select><button id="generateBtn" onclick="generateContent()">✨ Generar</button></div><div id="status" class="status">Ahora cada red usa su propio agente especializado.</div><div id="scan" class="scan"></div></div>
+      <div id="results" class="results empty"><h3>Contenido</h3><p>Los resultados aparecerán acá después de pegar un link.</p></div>
+    </section>
+    <section id="props" class="section panel"><h2>Propiedades</h2><p>Próximo módulo.</p><button onclick="notifySoon()">Crear propiedad</button></section>
+    <section id="vars" class="section panel"><h2>Variaciones IA</h2><p>Usá los botones Premium, Urgencia e Inversor en cada resultado.</p></section>
+    <section id="library" class="section panel"><h2>Biblioteca</h2><p>Próximo módulo.</p></section>
+    <section id="videos" class="section panel"><h2>Escaneo Videos</h2><p>Próximo módulo.</p></section>
+    <section id="hookAgent" class="section panel hook-panel"><div class="agent-head"><div><span class="pill">Producto estrella</span><h2>Agente Hook</h2><p>Especialista en viralidad, atención y hooks.</p></div><div class="score-orb">92</div></div><textarea id="hookPrompt" placeholder="Ej: Necesito un hook para vender una casa premium en Funes..."></textarea><button onclick="runHookAgent()">✨ Hablar con Agente Hook</button><div id="hookAgentResult" class="agent-result">Agente Hook todavía está en modo demo.</div></section>
+    <section id="campaigns" class="section panel"><h2>Campañas</h2><p>Próximo módulo.</p></section>
+    <section id="stats" class="section panel"><h2>Estadísticas</h2><p>Próximo módulo.</p></section>
+    <section id="admin" class="section panel"><h2>Panel Admin</h2><p>Próximo módulo.</p></section>
+    <section id="plans" class="section panel"><h2>Planes</h2><p>Próximo módulo.</p></section>
+  </main>
+</div>
+<script src="static/app.js"></script>
+</body></html>

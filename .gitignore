@@ -1,6 +1,3 @@
 __pycache__/
 *.pyc
 .env
-.venv/
-backend/marketprop.db
-node_modules/

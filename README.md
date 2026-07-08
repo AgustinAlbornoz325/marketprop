@@ -1,17 +1,17 @@
-# MarketProp Enterprise v0.2.0 Alpha
+# MarketProp v0.3.2 Content Engine
 
-Agrega login, registro, organizaciones y base de datos SQLite local.
+Cambios:
+- Hero más compacto.
+- Agentes por plataforma: Facebook, Instagram, TikTok, WhatsApp, Mercado Libre y Meta Ads.
+- Las variaciones cambian de verdad según estilo.
+- TikTok genera hook + guion, no descripción genérica.
+- WhatsApp suena humano.
+- Mercado Libre es más técnico.
+- Se agrega docs/AGENTE_COPY.md.
 
-## Backend
-Entrar a `backend` y ejecutar:
-
+## Ejecutar
+cd backend
 py -m pip install -r requirements.txt
 py -m uvicorn app.main:app --reload
 
-## Frontend
-Abrir `frontend/index.html`.
-
-## GitHub
-git add .
-git commit -m "MarketProp Enterprise v0.2.0 Alpha - login y organizaciones"
-git push
+Luego abrir frontend/index.html
