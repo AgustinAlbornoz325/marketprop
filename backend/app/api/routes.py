@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.marketmind.orchestrator import MarketMindOrchestrator
+from app.marketmind.model_router import ModelRouter
 router = APIRouter(); marketmind = MarketMindOrchestrator()
+router_engine = ModelRouter()
 class LoginRequest(BaseModel): email: str; password: str
 class RegisterRequest(BaseModel): name: str; organization_name: str; email: str; password: str
 class GenerateRequest(BaseModel): url: str; style: str = "auto"
@@ -25,3 +27,8 @@ def variation(req: VariationRequest):
     except ValueError as e: raise HTTPException(400, str(e))
 @router.get("/marketmind/health")
 def health(): return {"marketmind":"active", "version":"0.3.3", "mode":"orchestrator"}
+
+
+@router.get("/marketmind/providers")
+def providers():
+    return {"providers": router_engine.provider_status(), "note": "Sin API keys usa mock. Con API keys MarketMind puede enrutar tareas."}

@@ -21,7 +21,7 @@ class MarketMindOrchestrator:
             attempts = 1
             if ev["decision"] == "regenerate":
                 attempts = 2; edited = self.editor.run(agent.run(p, strategy)); ev = self.evaluator.evaluate(platform, edited, strategy["style"])
-            content[platform] = {"agent":agent.__class__.__name__, "model":model["model"], "style":strategy["style"], "score":ev["total"], "evaluation":ev, "attempts":attempts, "text":edited}
+            content[platform] = {"agent":agent.__class__.__name__, "provider":model.get("provider"), "provider":model.get("provider"), "model":model["model"], "style":strategy["style"], "score":ev["total"], "evaluation":ev, "attempts":attempts, "text":edited}
         memory_store.remember({"event":"generation", "url":url, "style":style, "platforms":list(content.keys())})
         trace.append({"step":"delivery", "message":"MarketMind entregó contenido evaluado por plataforma"})
         return {"property":p, "strategy":strategy, "content":content, "trace":trace}
@@ -29,4 +29,4 @@ class MarketMindOrchestrator:
         if platform not in PLATFORM_AGENTS: raise ValueError("Plataforma no soportada")
         strategy = self.copy_agent.run(property_data, style); agent = PLATFORM_AGENTS[platform]; model = self.router.choose_model("variation", platform)
         edited = self.editor.run(agent.run(property_data, strategy)); ev = self.evaluator.evaluate(platform, edited, strategy["style"])
-        return {"platform":platform, "variation":{"agent":agent.__class__.__name__, "model":model["model"], "style":strategy["style"], "score":ev["total"], "evaluation":ev, "text":edited}}
+        return {"platform":platform, "variation":{"agent":agent.__class__.__name__, "provider":model.get("provider"), "provider":model.get("provider"), "model":model["model"], "style":strategy["style"], "score":ev["total"], "evaluation":ev, "text":edited}}

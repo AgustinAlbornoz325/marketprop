@@ -8,3 +8,6 @@
 006 - MarketMind será el cerebro que orquesta agentes y modelos.
 007 - La plataforma no se casa con GPT, Claude ni Gemini. MarketMind elegirá por rendimiento.
 008 - v0.3.3 crea la arquitectura real de orquestación con proveedor mock.
+
+009 - v0.3.4 crea Provider Gateway para OpenAI, Claude, Gemini y mock local.
+010 - MarketMind debe elegir proveedor por tarea, no por preferencia de marca.

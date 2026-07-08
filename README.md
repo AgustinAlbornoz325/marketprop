@@ -1,15 +1,14 @@
-# MarketProp v0.3.3 MarketMind Orchestrator
+# MarketProp v0.3.4 Provider Gateway
 
-Esta versión crea el cerebro base de MarketProp.
+Esta versión prepara MarketMind para usar distintos proveedores de IA.
 
-## Cambios
-- Nuevo paquete `backend/app/marketmind/`.
-- MarketMind Orchestrator coordina el flujo.
-- ModelRouter decide qué modelo usar por tarea.
-- Evaluator puntúa calidad.
-- MemoryStore guarda eventos simples en runtime.
-- Agentes por plataforma siguen separados.
-- Endpoint `/api/marketmind/health`.
+## Cambios principales
+- Provider Gateway creado.
+- ModelRouter detecta proveedores disponibles.
+- Preparado para OpenAI, Anthropic/Claude y Google/Gemini.
+- Modo mock local si no hay API keys.
+- Endpoint `/api/marketmind/providers`.
+- MarketMind muestra proveedor + modelo elegido por tarea.
 
 ## Ejecutar
 cd backend
@@ -18,5 +17,6 @@ py -m uvicorn app.main:app --reload
 
 Luego abrir frontend/index.html.
 
-## Nota
-Todavía no usa APIs reales de GPT, Claude o Gemini. Usa modo mock para que puedas correrlo localmente.
+## API keys opcionales
+En esta versión no son obligatorias.
+Próximo sprint: llamadas reales.
