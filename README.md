@@ -1,20 +1,27 @@
-# MarketProp v0.3.6.1 Backend Hotfix
+# MarketProp v0.3.7 Command Center Polish
 
-Hotfix sobre v0.3.6 Consolidated Command Center.
+Versión acumulativa sobre v0.3.6.1.
 
-## Arreglos
-- Corrige import de `registry` en providers.
-- Corrige llamadas del backend para que no usen `await` sobre métodos sync.
-- Mantiene todo lo consolidado de v0.3.6:
-  - MarketMind Orchestrator
-  - Provider Gateway
-  - Real AI Connector
-  - Button QA Fix
-  - Command Center
-  - Pipeline
-  - Calendario
-  - MarketDNA Sources
-  - IG Ready
+## Mantiene
+- MarketMind Orchestrator
+- Provider Gateway
+- Real AI Connector
+- Button QA Fix
+- Agentes por plataforma
+- Command Center
+- Pipeline
+- Calendario
+- MarketDNA Sources
+- IG Ready
+- Módulos legacy preservados
+
+## Mejora
+- Command Center más profesional.
+- Métricas adaptadas al rubro inmobiliario.
+- Funnel comercial.
+- Señales por propiedad.
+- Quality Gate más claro.
+- Alertas e insights más accionables.
 
 ## Ejecutar
 cd backend

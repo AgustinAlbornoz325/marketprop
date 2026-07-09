@@ -15,7 +15,7 @@
       <div class="tabs"><button id="loginTab" class="active" onclick="setAuth('login')">Ingresar</button><button id="registerTab" onclick="setAuth('register')">Crear cuenta</button></div>
       <div id="loginForm"><input id="loginEmail" placeholder="Email"><input id="loginPassword" type="password" placeholder="Contraseña"><button id="loginBtn" onclick="login()">Entrar</button></div>
       <div id="registerForm" class="hidden"><input id="regName" placeholder="Tu nombre"><input id="regOrg" placeholder="Nombre de tu inmobiliaria"><input id="regEmail" placeholder="Email"><input id="regPassword" type="password" placeholder="Contraseña"><button id="registerBtn" onclick="register()">Crear cuenta</button></div>
-      <small>v0.3.6 Consolidated Command Center</small>
+      <small>v0.3.7 Command Center Polish</small>
     </div>
   </div>
 </div>
@@ -53,7 +53,7 @@
       <div id="results" class="results empty"><h3>Contenido</h3><p>Los resultados aparecerán acá después de pegar un link.</p></div>
     </section>
 
-    <section id="command" class="section panel"><div class="panel-head"><div><span class="pill">Nuevo · acumulativo</span><h2>MarketProp Command Center</h2><p>Centro de mando con métricas, quality gate, alertas e insights. Diseño MarketProp, lógica inspirada en el dashboard que analizamos.</p></div><button onclick="renderCommandCenter()">Actualizar</button></div><div id="commandContent"></div></section>
+    <section id="command" class="section panel"><div class="panel-head"><div><span class="pill">Nuevo · acumulativo</span><h2>MarketProp Command Center</h2><p>Centro de mando inmobiliario con métricas, funnel comercial, quality gate, señales por propiedad, alertas e insights.</p></div><button onclick="renderCommandCenter()">Actualizar</button></div><div id="commandContent"></div></section>
     <section id="props" class="section panel"><h2>Propiedades</h2><div class="input-row"><input id="newPropertyTitle" placeholder="Ej: Casa premium en Funes"><input id="newPropertyUrl" placeholder="Link de la propiedad"><button onclick="createProperty()">Crear propiedad</button></div><div id="propertyList" class="card-list"></div></section>
     <section id="pipeline" class="section panel"><div class="panel-head"><div><span class="pill">Workflow</span><h2>Pipeline de contenido</h2><p>Estados de producción para no perder oportunidades.</p></div></div><div id="pipelineBoard" class="kanban"></div></section>
     <section id="calendar" class="section panel"><div class="panel-head"><div><span class="pill">Planificación</span><h2>Calendario editorial</h2><p>Plan semanal por plataforma y objetivo.</p></div></div><div id="calendarGrid" class="calendar-grid"></div></section>

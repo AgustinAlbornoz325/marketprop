@@ -4,18 +4,61 @@ COMMAND_CENTER = {
         {"label": "MarketMind Score", "value": "91", "delta": "+6", "detail": "Promedio de calidad"},
         {"label": "Propiedades activas", "value": "37", "delta": "+5", "detail": "Con contenido listo"},
         {"label": "Consultas estimadas", "value": "214", "delta": "+31%", "detail": "DMs / WhatsApp mock"},
+        {"label": "Visitas agendadas", "value": "26", "delta": "+12%", "detail": "Objetivo comercial final"},
+        {"label": "Costo IA estimado", "value": "US$ 3.42", "delta": "-18%", "detail": "Control de consumo mensual"},
+        {"label": "Hooks aprobados", "value": "89%", "delta": "+9", "detail": "Pasan Quality Gate"},
+        {"label": "Contenido reciclable", "value": "42", "delta": "+16", "detail": "Piezas reutilizables"}
     ],
-    "quality": {"score": 87, "ready": 9, "blocked": 2},
+    "quality": {
+        "score": 87,
+        "ready": 9,
+        "blocked": 2,
+        "weak_hooks": 3,
+        "weak_cta": 1,
+        "needs_property_data": 4
+    },
+    "funnel": [
+        {"label": "Alcance", "value": "48.2K", "pct": 100},
+        {"label": "Visitas perfil", "value": "6.7K", "pct": 72},
+        {"label": "Clicks / WhatsApp", "value": "812", "pct": 46},
+        {"label": "DMs", "value": "214", "pct": 31},
+        {"label": "Visitas agendadas", "value": "26", "pct": 18}
+    ],
+    "format_reach": [
+        {"label": "Reels", "value": 92, "detail": "mejor para alcance"},
+        {"label": "Stories", "value": 64, "detail": "mejor para confianza"},
+        {"label": "Carruseles", "value": 58, "detail": "mejor educativo"},
+        {"label": "Meta Ads", "value": 49, "detail": "mejor leads"},
+        {"label": "WhatsApp", "value": 71, "detail": "mejor cierre"}
+    ],
+    "property_signals": [
+        {"title": "Casa premium en Funes", "signal": "Más guardados", "score": 94, "action": "Crear Reel + Meta Ad"},
+        {"title": "Departamento Rosario Centro", "signal": "Más DMs", "score": 91, "action": "Enviar WhatsApp directo"},
+        {"title": "Terreno Fisherton", "signal": "Interés inversor", "score": 88, "action": "Crear carrusel de rentabilidad"},
+        {"title": "Monoambiente Centro", "signal": "Consulta por financiación", "score": 84, "action": "Crear pieza educativa"}
+    ],
+    "weekly_slots": [
+        {"day": "Lun", "hour": "10:00", "score": 88},
+        {"day": "Mar", "hour": "18:00", "score": 76},
+        {"day": "Mié", "hour": "12:00", "score": 91},
+        {"day": "Jue", "hour": "20:00", "score": 82},
+        {"day": "Vie", "hour": "11:00", "score": 79},
+        {"day": "Sáb", "hour": "19:00", "score": 69},
+        {"day": "Dom", "hour": "20:30", "score": 73}
+    ],
     "alerts": [
-        {"title": "Hook débil en Reel", "text": "Una pieza de Funes necesita primer segundo más fuerte.", "level": "warning"},
+        {"title": "Hook débil en Reel", "text": "La pieza de Funes necesita primer segundo más fuerte.", "level": "warning"},
         {"title": "Meta Ads sin ángulo claro", "text": "El anuncio de inversión debe prometer consulta concreta.", "level": "danger"},
         {"title": "WhatsApp listo", "text": "3 mensajes están listos para enviar a prospectos.", "level": "success"},
+        {"title": "Propiedad sin datos", "text": "4 contenidos necesitan precio, barrio o características para mejorar el score.", "level": "warning"}
     ],
     "insights": [
         {"title": "Dolor dominante", "text": "Los compradores preguntan primero por financiación y gastos iniciales."},
         {"title": "Objeción caliente", "text": "Dudan por zona antes que por precio."},
         {"title": "Frase reusable", "text": "¿Aceptan permuta o financiación?"},
         {"title": "Oportunidad", "text": "Crear contenido educativo sobre compra inicial y reservas."},
+        {"title": "Siguiente acción", "text": "Convertir la mejor propiedad de la semana en campaña multired."},
+        {"title": "Aprendizaje MarketDNA", "text": "Los CTAs con 'te paso más info' convierten mejor que 'consultá'."}
     ]
 }
 

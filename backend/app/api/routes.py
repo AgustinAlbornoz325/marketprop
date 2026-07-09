@@ -64,7 +64,7 @@ async def variation(req: VariationRequest):
 
 @router.get("/marketmind/health")
 def health():
-    return {"marketmind": "active", "version": "0.3.6", "mode": "consolidated-command-center"}
+    return {"marketmind": "active", "version": "0.3.7", "mode": "consolidated-command-center"}
 
 @router.get("/marketmind/providers")
 def providers():
