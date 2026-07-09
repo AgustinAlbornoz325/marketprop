@@ -5,28 +5,25 @@ from app.marketmind.agents.property_agent import PropertyAgent
 from app.marketmind.agents.copy_agent import CopyAgent
 from app.marketmind.agents.editor_agent import EditorAgent
 from app.marketmind.agents.platform_agents import FacebookAgent, InstagramAgent, TikTokAgent, WhatsAppAgent, MercadoLibreAgent, MetaAdsAgent
-PLATFORM_AGENTS = {"facebook":FacebookAgent(), "instagram":InstagramAgent(), "tiktok":TikTokAgent(), "whatsapp":WhatsAppAgent(), "mercado_libre":MercadoLibreAgent(), "meta_ads":MetaAdsAgent()}
+PLATFORM_AGENTS={"facebook":FacebookAgent(),"instagram":InstagramAgent(),"tiktok":TikTokAgent(),"whatsapp":WhatsAppAgent(),"mercado_libre":MercadoLibreAgent(),"meta_ads":MetaAdsAgent()}
 class MarketMindOrchestrator:
-    def __init__(self):
-        self.router = ModelRouter(); self.evaluator = Evaluator(); self.property_agent = PropertyAgent(); self.copy_agent = CopyAgent(); self.editor = EditorAgent()
-    def generate(self, url: str, style: str = "auto") -> dict:
-        trace = [{"step":"input", "message":"Usuario pegó link de propiedad"}]
-        p = self.property_agent.run(url); trace.append({"step":"property_agent", "message":"Agente Propiedad interpretó datos base", "data":p})
-        strategy = self.copy_agent.run(p, style); trace.append({"step":"copy_agent", "message":"Agente Copy definió estrategia", "data":strategy})
-        content = {}
-        for platform, agent in PLATFORM_AGENTS.items():
-            model = self.router.choose_model("generation", platform); trace.append({"step":"model_router", "platform":platform, "model":model})
-            edited = self.editor.run(agent.run(p, strategy))
-            ev = self.evaluator.evaluate(platform, edited, strategy["style"])
-            attempts = 1
-            if ev["decision"] == "regenerate":
-                attempts = 2; edited = self.editor.run(agent.run(p, strategy)); ev = self.evaluator.evaluate(platform, edited, strategy["style"])
-            content[platform] = {"agent":agent.__class__.__name__, "provider":model.get("provider"), "provider":model.get("provider"), "model":model["model"], "style":strategy["style"], "score":ev["total"], "evaluation":ev, "attempts":attempts, "text":edited}
-        memory_store.remember({"event":"generation", "url":url, "style":style, "platforms":list(content.keys())})
-        trace.append({"step":"delivery", "message":"MarketMind entregó contenido evaluado por plataforma"})
-        return {"property":p, "strategy":strategy, "content":content, "trace":trace}
-    def variation(self, platform: str, property_data: dict, style: str = "auto") -> dict:
+    def __init__(self): self.router=ModelRouter(); self.evaluator=Evaluator(); self.property_agent=PropertyAgent(); self.copy_agent=CopyAgent(); self.editor=EditorAgent()
+    def _system(self,platform): return f"Sos un agente experto de MarketProp. Escribí en español argentino, claro, vendedor, sin exagerar. Generá contenido específico para {platform}. Entregá solo el contenido final."
+    def _prompt(self,platform,p,strategy,base): return f"PLATAFORMA: {platform}\nTIPO: {p.get('type')}\nUBICACIÓN: {p.get('location')}\nPRECIO: {p.get('price')}\nLINK: {p.get('url')}\nESTILO: {strategy.get('style')}\nÁNGULO: {strategy.get('primary_angle')}\n\nBORRADOR BASE:\n{base}\n\nMejorá este contenido para que sea más natural, específico y menos repetitivo."
+    def _run_platform(self,platform,agent,p,strategy,task_type="generation"):
+        model=self.router.choose_model(task_type,platform); provider=self.router.get_provider(task_type,platform); base=agent.run(p,strategy)
+        try:
+            res=provider.complete({"model":model["model"],"system":self._system(platform),"prompt":self._prompt(platform,p,strategy,base),"fallback_text":base,"max_tokens":900})
+            text=res.get("text") or base; mode=res.get("mode","demo")
+        except Exception as e:
+            text=base; mode="fallback"; model={**model,"provider_error":str(e)[:180]}
+        edited=self.editor.run(text); ev=self.evaluator.evaluate(platform,edited,strategy["style"])
+        return {"agent":agent.__class__.__name__,"provider":model.get("provider"),"model":model.get("model"),"mode":mode,"score":ev["total"],"style":strategy["style"],"evaluation":ev,"text":edited}
+    def generate(self,url,style="auto"):
+        p=self.property_agent.run(url); strategy=self.copy_agent.run(p,style); content={}
+        for platform,agent in PLATFORM_AGENTS.items(): content[platform]=self._run_platform(platform,agent,p,strategy,"generation")
+        memory_store.remember({"event":"generation","url":url,"style":style,"providers":[v["provider"] for v in content.values()]})
+        return {"property":p,"strategy":strategy,"content":content,"trace":[{"step":"real_ai_connector","message":"MarketMind eligió proveedor real o mock por plataforma"}]}
+    def variation(self,platform,property_data,style="auto"):
         if platform not in PLATFORM_AGENTS: raise ValueError("Plataforma no soportada")
-        strategy = self.copy_agent.run(property_data, style); agent = PLATFORM_AGENTS[platform]; model = self.router.choose_model("variation", platform)
-        edited = self.editor.run(agent.run(property_data, strategy)); ev = self.evaluator.evaluate(platform, edited, strategy["style"])
-        return {"platform":platform, "variation":{"agent":agent.__class__.__name__, "provider":model.get("provider"), "provider":model.get("provider"), "model":model["model"], "style":strategy["style"], "score":ev["total"], "evaluation":ev, "text":edited}}
+        strategy=self.copy_agent.run(property_data,style); return {"platform":platform,"variation":self._run_platform(platform,PLATFORM_AGENTS[platform],property_data,strategy,"variation")}

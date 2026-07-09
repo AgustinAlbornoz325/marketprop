@@ -1,60 +1,74 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MarketProp</title><link rel="stylesheet" href="static/styles.css"></head>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MarketProp</title>
+<link rel="stylesheet" href="static/styles.css">
+</head>
 <body>
 <div id="toast" class="toast hidden"></div>
 <div id="authScreen" class="auth-screen">
   <div class="auth-shell">
-    <div class="auth-brand"><div class="logo-mark">MP</div><h1>MarketProp</h1><p>Inteligencia comercial para inmobiliarias.</p></div>
+    <div class="auth-brand"><div class="logo-mark">MP</div><h1>MarketProp</h1><p>La IA hace todo el marketing. Vos vendé propiedades, ganá tiempo.</p></div>
     <div class="auth-card">
       <div class="tabs"><button id="loginTab" class="active" onclick="setAuth('login')">Ingresar</button><button id="registerTab" onclick="setAuth('register')">Crear cuenta</button></div>
       <div id="loginForm"><input id="loginEmail" placeholder="Email"><input id="loginPassword" type="password" placeholder="Contraseña"><button id="loginBtn" onclick="login()">Entrar</button></div>
       <div id="registerForm" class="hidden"><input id="regName" placeholder="Tu nombre"><input id="regOrg" placeholder="Nombre de tu inmobiliaria"><input id="regEmail" placeholder="Email"><input id="regPassword" type="password" placeholder="Contraseña"><button id="registerBtn" onclick="register()">Crear cuenta</button></div>
-      <small>v0.3.4 Provider Gateway</small>
+      <small>v0.3.6 Consolidated Command Center</small>
     </div>
   </div>
 </div>
-
 <div id="appScreen" class="app hidden">
   <aside class="sidebar">
     <div class="brand"><div class="logo-mark small">MP</div><div><strong>MarketProp</strong><span id="orgName">Tu inmobiliaria</span></div></div>
     <nav>
       <button class="nav active" onclick="show('home',this)">⌂ Inicio</button>
+      <button class="nav featured" onclick="show('command',this)">◎ Command Center</button>
       <button class="nav" onclick="show('props',this)">⌁ Propiedades</button>
+      <button class="nav" onclick="show('pipeline',this)">▦ Pipeline</button>
+      <button class="nav" onclick="show('calendar',this)">▣ Calendario</button>
+      <button class="nav" onclick="show('sources',this)">◈ MarketDNA</button>
       <button class="nav" onclick="show('vars',this)">✦ Variaciones IA</button>
       <button class="nav" onclick="show('library',this)">▣ Biblioteca</button>
       <button class="nav" onclick="show('videos',this)">▶ Escaneo Videos</button>
       <button class="nav featured" onclick="show('hookAgent',this)">✦ Agente Hook</button>
       <button class="nav" onclick="show('campaigns',this)">◈ Campañas</button>
       <button class="nav" onclick="show('stats',this)">△ Estadísticas</button>
+      <button class="nav" onclick="show('igReady',this)">IG IG Ready</button>
       <button class="nav" onclick="show('admin',this)">◎ Panel Admin</button>
       <button class="nav" onclick="show('plans',this)">◇ Planes</button>
     </nav>
     <div class="usage-card"><div class="usage-top"><b id="planName">Plan Básico</b><span>34%</span></div><p>Contenido generado este mes</p><div class="bar"><span></span></div><small>128 / 500 publicaciones</small></div>
   </aside>
   <main>
-    <header class="topbar"><div><p class="eyebrow">WORKSPACE DE MARKETING INMOBILIARIO</p><h1 id="welcomeTitle">Hola</h1></div><div class="top-actions"><button class="ghost" onclick="notifySoon()">Ayuda</button><button class="ghost" onclick="logout()">Salir</button></div></header>
+    <header class="topbar"><div><p class="eyebrow">WORKSPACE DE MARKETING INMOBILIARIO</p><h1 id="welcomeTitle">Hola</h1></div><div class="top-actions"><button class="ghost" onclick="loadProviderStatus()">Proveedores</button><button class="ghost" onclick="logout()">Salir</button></div></header>
+
     <section id="home" class="section active-section">
       <div class="hero-card">
-        <div class="hero-copy">
-          <div class="pill">Provider Gateway activo</div>
-          <h2 class="compact-hero"><span>La IA hace todo el marketing.</span><br>Vos vendé propiedades, ganá tiempo.</h2>
-          <p>Pegá el link de una propiedad y MarketProp crea automáticamente publicaciones, anuncios y contenido optimizado para cada plataforma.</p>
-        </div>
+        <div class="hero-copy"><div class="pill">MarketMind + Provider Gateway activo</div><h2 class="compact-hero"><span>La IA hace todo el marketing.</span><br>Vos vendé propiedades, ganá tiempo.</h2><p>Pegá el link de una propiedad y MarketProp crea automáticamente publicaciones, anuncios y contenido optimizado para cada plataforma.</p></div>
         <div class="hero-side"><h3>Agentes activos</h3><div class="feature-grid"><button>Facebook</button><button>Instagram</button><button>TikTok</button><button>WhatsApp</button><button>Mercado Libre</button><button>Meta Ads</button></div></div>
       </div>
-      <div class="generator"><label>LINK DE LA PROPIEDAD</label><div class="input-row"><input id="propertyUrl" placeholder="https://www.tuinmobiliaria.com/propiedad/xxxxx"><select id="globalStyle"><option value="auto">Automático</option><option value="profesional">Profesional</option><option value="premium">Premium</option><option value="urgencia">Urgencia</option><option value="inversor">Inversor</option></select><button id="generateBtn" onclick="generateContent()">✨ Generar</button></div><div id="status" class="status">Ahora cada red usa su propio agente especializado.</div><div id="scan" class="scan"></div></div>
+      <div class="generator"><label>LINK DE LA PROPIEDAD</label><div class="input-row"><input id="propertyUrl" placeholder="https://www.tuinmobiliaria.com/propiedad/xxxxx"><select id="globalStyle"><option value="auto">Automático</option><option value="profesional">Profesional</option><option value="premium">Premium</option><option value="urgencia">Urgencia</option><option value="inversor">Inversor</option></select><button id="generateBtn" onclick="generateContent()">✨ Generar</button></div><div id="status" class="status">Cada red usa su agente, proveedor, modelo y evaluador.</div><div id="scan" class="scan"></div></div>
       <div id="results" class="results empty"><h3>Contenido</h3><p>Los resultados aparecerán acá después de pegar un link.</p></div>
     </section>
-    <section id="props" class="section panel"><h2>Propiedades</h2><p>Próximo módulo.</p><button onclick="notifySoon()">Crear propiedad</button></section>
-    <section id="vars" class="section panel"><h2>Variaciones IA</h2><p>Usá los botones Premium, Urgencia e Inversor en cada resultado.</p></section>
-    <section id="library" class="section panel"><h2>Biblioteca</h2><p>Próximo módulo.</p></section>
-    <section id="videos" class="section panel"><h2>Escaneo Videos</h2><p>Próximo módulo.</p></section>
-    <section id="hookAgent" class="section panel hook-panel"><div class="agent-head"><div><span class="pill">Producto estrella</span><h2>Agente Hook</h2><p>Especialista en viralidad, atención y hooks.</p></div><div class="score-orb">92</div></div><textarea id="hookPrompt" placeholder="Ej: Necesito un hook para vender una casa premium en Funes..."></textarea><button onclick="runHookAgent()">✨ Hablar con Agente Hook</button><div id="hookAgentResult" class="agent-result">Agente Hook todavía está en modo demo.</div></section>
-    <section id="campaigns" class="section panel"><h2>Campañas</h2><p>Próximo módulo.</p></section>
-    <section id="stats" class="section panel"><h2>Estadísticas</h2><p>Próximo módulo.</p></section>
-    <section id="admin" class="section panel"><h2>Panel Admin</h2><p>Próximo módulo.</p></section>
-    <section id="plans" class="section panel"><h2>Planes</h2><p>Próximo módulo.</p></section>
+
+    <section id="command" class="section panel"><div class="panel-head"><div><span class="pill">Nuevo · acumulativo</span><h2>MarketProp Command Center</h2><p>Centro de mando con métricas, quality gate, alertas e insights. Diseño MarketProp, lógica inspirada en el dashboard que analizamos.</p></div><button onclick="renderCommandCenter()">Actualizar</button></div><div id="commandContent"></div></section>
+    <section id="props" class="section panel"><h2>Propiedades</h2><div class="input-row"><input id="newPropertyTitle" placeholder="Ej: Casa premium en Funes"><input id="newPropertyUrl" placeholder="Link de la propiedad"><button onclick="createProperty()">Crear propiedad</button></div><div id="propertyList" class="card-list"></div></section>
+    <section id="pipeline" class="section panel"><div class="panel-head"><div><span class="pill">Workflow</span><h2>Pipeline de contenido</h2><p>Estados de producción para no perder oportunidades.</p></div></div><div id="pipelineBoard" class="kanban"></div></section>
+    <section id="calendar" class="section panel"><div class="panel-head"><div><span class="pill">Planificación</span><h2>Calendario editorial</h2><p>Plan semanal por plataforma y objetivo.</p></div></div><div id="calendarGrid" class="calendar-grid"></div></section>
+    <section id="sources" class="section panel"><div class="panel-head"><div><span class="pill">MarketDNA</span><h2>Fuentes de aprendizaje</h2><p>Fuentes que alimentan MarketMind sin copiar, usando datos propios y autorizados.</p></div></div><div id="sourcesGrid" class="source-grid"></div></section>
+    <section id="vars" class="section panel"><h2>Variaciones IA</h2><p>Usá los botones <b>Dame otra</b>, <b>Premium</b>, <b>Urgencia</b> e <b>Inversor</b> en cada red. Esta función se conserva y mejora, no se elimina.</p></section>
+    <section id="library" class="section panel"><h2>Biblioteca</h2><p>Próximo: historial de contenidos generados, favoritos, ganadores y rechazados.</p></section>
+    <section id="videos" class="section panel"><h2>Escaneo Videos</h2><p>Próximo: análisis de Reels/TikToks virales, patrones de hook, retención y CTA.</p></section>
+    <section id="hookAgent" class="section panel hook-panel"><div class="agent-head"><div><span class="pill">Producto estrella</span><h2>Agente Hook</h2><p>Especialista en viralidad, atención y hooks.</p></div><div class="score-orb">92</div></div><textarea id="hookPrompt" placeholder="Ej: Necesito un hook para vender una casa premium en Funes..."></textarea><button onclick="runHookAgent()">✨ Hablar con Agente Hook</button><div id="hookAgentResult" class="agent-result">Agente Hook listo para analizar ideas.</div></section>
+    <section id="campaigns" class="section panel"><h2>Campañas</h2><p>Próximo: campañas completas por propiedad con Meta Ads, WhatsApp y seguimiento.</p></section>
+    <section id="stats" class="section panel"><h2>Estadísticas</h2><div id="statsContent" class="mini-stats"></div></section>
+    <section id="igReady" class="section panel"><div class="panel-head"><div><span class="pill">Preparado, no conectado</span><h2>Instagram Connector</h2><p>La estructura queda lista para conectar IG Business con permisos reales más adelante.</p></div></div><div class="checklist"><div><span class="check">✓</span>Provider Gateway separado</div><div><span class="check">✓</span>MarketMind preparado para métricas</div><div><span class="check">✓</span>Estados de error preparados</div><div><span class="empty"></span>Token real cargado</div><div><span class="empty"></span>Permisos Meta aprobados</div><div><span class="empty"></span>Webhooks activos</div></div></section>
+    <section id="admin" class="section panel"><h2>Panel Admin</h2><div class="mini-stats"><div><b>1</b><span>cliente activo</span></div><div><b>$0</b><span>MRR demo</span></div><div><b>15</b><span>módulos preservados</span></div></div></section>
+    <section id="plans" class="section panel"><h2>Planes</h2><div class="pricing"><div><h3>Básico</h3><p>Agentes esenciales.</p></div><div><h3>Pro</h3><p>Command Center + métricas.</p></div><div><h3>Business</h3><p>IA real + equipo + permisos.</p></div></div></section>
   </main>
 </div>
 <script src="static/app.js"></script>
-</body></html>
+</body>
+</html>

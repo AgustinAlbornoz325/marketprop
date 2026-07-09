@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
-app = FastAPI(title="MarketProp API", version="0.3.4 Provider Gateway")
+
+app = FastAPI(title="MarketProp API", version="0.3.6.1 Backend Hotfix")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 app.include_router(router, prefix="/api")
+
 @app.get("/")
-def root(): return {"app":"MarketProp", "version":"0.3.4 Provider Gateway", "status":"running"}
+def root():
+    return {"app": "MarketProp", "version": "0.3.6.1 Backend Hotfix", "status": "running"}

@@ -1,22 +1,25 @@
-# MarketProp v0.3.4 Provider Gateway
+# MarketProp v0.3.6.1 Backend Hotfix
 
-Esta versión prepara MarketMind para usar distintos proveedores de IA.
+Hotfix sobre v0.3.6 Consolidated Command Center.
 
-## Cambios principales
-- Provider Gateway creado.
-- ModelRouter detecta proveedores disponibles.
-- Preparado para OpenAI, Anthropic/Claude y Google/Gemini.
-- Modo mock local si no hay API keys.
-- Endpoint `/api/marketmind/providers`.
-- MarketMind muestra proveedor + modelo elegido por tarea.
+## Arreglos
+- Corrige import de `registry` en providers.
+- Corrige llamadas del backend para que no usen `await` sobre métodos sync.
+- Mantiene todo lo consolidado de v0.3.6:
+  - MarketMind Orchestrator
+  - Provider Gateway
+  - Real AI Connector
+  - Button QA Fix
+  - Command Center
+  - Pipeline
+  - Calendario
+  - MarketDNA Sources
+  - IG Ready
 
 ## Ejecutar
 cd backend
 py -m pip install -r requirements.txt
+copy .env.example .env
 py -m uvicorn app.main:app --reload
 
 Luego abrir frontend/index.html.
-
-## API keys opcionales
-En esta versión no son obligatorias.
-Próximo sprint: llamadas reales.

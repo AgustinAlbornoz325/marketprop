@@ -11,3 +11,12 @@
 
 009 - v0.3.4 crea Provider Gateway para OpenAI, Claude, Gemini y mock local.
 010 - MarketMind debe elegir proveedor por tarea, no por preferencia de marca.
+
+009 - Antes de guardar v0.3.5 se corrigieron variaciones genéricas: cada botón debe cambiar estructura y enfoque real.
+
+010 - Regla acumulativa: no se elimina lo que sirve; se consolida y se mejora.
+011 - v0.3.6 consolida versiones anteriores antes de seguir.
+012 - Se adopta la lógica útil del Command Center externo sin adoptar su diseño.
+013 - El diseño MarketProp blanco/celeste se mantiene hasta el final salvo aprobación expresa.
+
+010 - Hotfix v0.3.6.1: corregido import registry/provider_registry y await en rutas sync.
