@@ -7,10 +7,10 @@ async function login(){try{if(!loginEmail.value||!loginPassword.value){toast('Co
 async function register(){try{if(!regName.value||!regOrg.value||!regEmail.value||!regPassword.value){toast('Completá todos los campos.');return}load(registerBtn,true);const r=await fetch(API_URL+'/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:regName.value,organization_name:regOrg.value,email:regEmail.value,password:regPassword.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');currentUser=d.user;enter()}catch(e){toast(e.message||'No se pudo crear cuenta')}finally{load(registerBtn,false)}}
 function enter(){authScreen.classList.add('hidden');appScreen.classList.remove('hidden');welcomeTitle.innerText='Hola, '+(currentUser.organization_name||currentUser.name);orgName.innerText=currentUser.organization_name;planName.innerText=currentUser.plan;toast('Bienvenido a MarketProp');renderAllDashboards()}
 function logout(){location.reload()}
-function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));document.getElementById(id).classList.add('active-section');document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));if(btn)btn.classList.add('active'); if(['command','pipeline','calendar','sources','stats'].includes(id)) renderAllDashboards()}
+function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));document.getElementById(id).classList.add('active-section');document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));if(btn)btn.classList.add('active'); if(['command','pipeline','calendar','sources','stats'].includes(id)) renderAllDashboards(); if(id==='realData') loadRealDataDashboard()}
 function notifySoon(){toast('Función preparada para el próximo sprint.')}
 async function generateContent(){const url=propertyUrl.value.trim();if(!url){toast('Pegá el link de una propiedad.');return}if(!url.startsWith('http://')&&!url.startsWith('https://')){toast('El link debe empezar con http:// o https://');return}results.innerHTML='<h3>Contenido</h3><p>Generando contenido con MarketMind...</p>';scan.innerHTML='';status.innerText='MarketMind está coordinando agentes...';load(generateBtn,true);for(const s of ['Agente Propiedad analiza el link','Agente Copy define el enfoque','MarketMind elige agente, proveedor y modelo','Agente Evaluador puntúa calidad','Contenido listo']){await new Promise(r=>setTimeout(r,220));scan.innerHTML+='✓ '+s+'<br>'}try{const r=await fetch(API_URL+'/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,style:globalStyle.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'No se pudo generar');currentProperty=d.property;renderResults(d.content);status.innerText='Contenido generado correctamente.';toast('Contenido generado')}catch(e){toast(e.message||'Error al generar');status.innerText='Error'}finally{load(generateBtn,false)}}
-function renderResults(c){const names={facebook:'Facebook',instagram:'Instagram',tiktok:'TikTok',whatsapp:'WhatsApp',mercado_libre:'Mercado Libre',meta_ads:'Meta Ads'};let h='<h3>Contenido generado</h3><div class="result-grid">';Object.keys(c).forEach(k=>{let v=c[k].text;if(typeof v==='object')v=JSON.stringify(v,null,2);h+=`<div class="result-card"><h3>${names[k]}</h3><span class="style-badge">${c[k].agent||'agente'} · ${c[k].provider||'mock'} · ${c[k].model||'modelo'} · ${c[k].style}</span><p class="score">MarketMind Score: ${c[k].score}/100</p><pre id="text-${k}">${esc(v)}</pre><div class="actions"><button onclick="copyResult('${k}',this)">Copiar</button><button class="outline" onclick="variation('${k}','auto',this)">Dame otra</button><button class="outline" onclick="variation('${k}','premium',this)">Premium</button><button class="outline" onclick="variation('${k}','urgencia',this)">Urgencia</button><button class="outline" onclick="variation('${k}','inversor',this)">Inversor</button></div></div>`});results.innerHTML=h+'</div>'}
+function renderResults(c){const names={facebook:'Facebook',instagram:'Instagram',tiktok:'TikTok',whatsapp:'WhatsApp',mercado_libre:'Mercado Libre',meta_ads:'Meta Ads'};const logos={facebook:'f',instagram:'IG',tiktok:'TK',whatsapp:'WA',mercado_libre:'ML',meta_ads:'Meta'};let h='<h3>Contenido generado</h3><div class="result-grid">';Object.keys(c).forEach(k=>{let v=c[k].text;if(typeof v==='object')v=JSON.stringify(v,null,2);h+=`<div class="result-card"><h3 class="platform-title"><span class="platform-logo ${k}">${logos[k]}</span>${names[k]}</h3><span class="style-badge">${c[k].agent||'agente'} · ${c[k].provider||'mock'} · ${c[k].model||'modelo'} · ${c[k].style}</span><p class="score">MarketMind Score: ${c[k].score}/100</p><pre id="text-${k}">${esc(v)}</pre><div class="actions"><button onclick="copyResult('${k}',this)">Copiar</button><button class="outline" onclick="variation('${k}','auto',this)">Dame otra</button><button class="outline" onclick="variation('${k}','premium',this)">Premium</button><button class="outline" onclick="variation('${k}','urgencia',this)">Urgencia</button><button class="outline" onclick="variation('${k}','inversor',this)">Inversor</button></div></div>`});results.innerHTML=h+'</div>'}
 async function variation(platform,style,btn){if(!currentProperty){toast('Primero generá contenido.');return}try{load(btn,true);const r=await fetch(API_URL+'/variation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform,property_data:currentProperty,style})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');let v=d.variation.text;if(typeof v==='object')v=JSON.stringify(v,null,2);document.getElementById('text-'+platform).innerText=v;if(btn){const oldText=btn.innerHTML;btn.innerHTML='✓ Actualizado';setTimeout(()=>btn.innerHTML=oldText,1200)}toast('Nueva variación generada')}catch(e){toast(e.message||'Error')}finally{load(btn,false)}}
 function copyResult(k,btn){const el=document.getElementById('text-'+k);if(!el){toast('No hay contenido');return}navigator.clipboard.writeText(el.innerText).then(()=>{const old=btn.innerHTML;btn.innerHTML='✓ Copiado';btn.classList.add('copied');setTimeout(()=>{btn.innerHTML=old;btn.classList.remove('copied')},1400);toast('Copiado')})}
 async function runHookAgent(){if(!hookPrompt.value.trim()){toast('Escribí una idea para Agente Hook.');return}hookAgentResult.innerHTML='Agente Hook está analizando...';await new Promise(r=>setTimeout(r,650));hookAgentResult.innerHTML='<b>Agente Hook</b><br><br>No empezaría mostrando la propiedad. Empezaría con una tensión o curiosidad.<br><br><b>Hook recomendado:</b><br>“Antes de comprar una propiedad, mirá este detalle que casi nadie revisa.”<br><br><b>Hook Score:</b> 92/100<br><b>Índice de novedad:</b> 88/100<br><b>Saturación:</b> 19/100<br><br><b>Mi consejo:</b> usalo como primera frase del Reel y recién después mostrás la propiedad.';toast('Agente Hook respondió')}
@@ -20,13 +20,22 @@ async function renderCommandCenter(){
   const r=await fetch(API_URL+'/analytics/command-center');
   const d=await r.json();
 
-  const kpis='<div class="metric-grid command-metrics">'+d.kpis.map(k=>`
+  const socialMetrics=(d.social_metrics||[]);
+  const social='<div class="restore-block"><div class="panel-head mini"><div><span class="pill">Restaurado · Redes sociales</span><h3>Métricas de redes</h3><p>Views, alcance, seguidores, engagement, DMs y señales que ya estaban en la lógica anterior.</p></div></div><div class="metric-grid social-metrics">'+socialMetrics.map(k=>`
+    <div class="metric-card restored">
+      <span>${esc(k.label)}</span>
+      <b>${esc(k.value)}</b>
+      <p>${esc(k.detail)}</p>
+      <em>${esc(k.delta)}</em>
+    </div>`).join('')+'</div></div>';
+
+  const kpis='<div class="restore-block"><div class="panel-head mini"><div><span class="pill">MarketProp · Inmobiliario</span><h3>Métricas comerciales</h3><p>KPIs propios del negocio inmobiliario y del motor MarketMind.</p></div></div><div class="metric-grid command-metrics">'+d.kpis.map(k=>`
     <div class="metric-card polished">
       <span>${esc(k.label)}</span>
       <b>${esc(k.value)}</b>
       <p>${esc(k.detail)}</p>
       <em>${esc(k.delta)}</em>
-    </div>`).join('')+'</div>';
+    </div>`).join('')+'</div></div>';
 
   const quality=`
     <div class="quality-shell">
@@ -102,6 +111,7 @@ async function renderCommandCenter(){
     </div>`).join('')+'</div>';
 
   commandContent.innerHTML=
+    social+
     kpis+
     '<div class="command-grid polished-grid">'+quality+funnel+'</div>'+
     '<div class="command-grid polished-grid">'+formats+slots+'</div>'+
@@ -117,25 +127,93 @@ async function renderCommandCenter(){
 }
 async function renderPipeline(){
  try{
-  const r=await fetch(API_URL+'/analytics/pipeline');
+  const r=await fetch(API_URL+'/analytics/pipeline-detail');
   const d=await r.json();
-  pipelineBoard.innerHTML=pipelineStatuses.map(st=>{
+  pipelineBoard.innerHTML=d.statuses.map(st=>{
     const items=d.items.filter(x=>x.status===st);
-    return `<div class="pipeline-col polished">
-      <h3>${st}<span>${items.length}</span></h3>
-      ${items.map(x=>`<div class="pipeline-card">
+    return `<div class="pipeline-col polished operational">
+      <h3>${esc(st)}<span>${items.length}</span></h3>
+      ${items.map(x=>`<div class="pipeline-card operational-card">
         <span>${esc(x.platform)} · ${esc(x.format)} · ${esc(x.owner||'Equipo')}</span>
         <h3>${esc(x.property)}</h3>
-        <p>${esc(x.objective)}</p>
+        <p><b>Objetivo:</b> ${esc(x.objective)}</p>
+        <p><b>Próxima acción:</b> ${esc(x.next_action)}</p>
+        <p><b>Fuente:</b> ${esc(x.source)}</p>
         <div class="quality-bar tiny"><span style="width:${x.score}%"></span></div>
-        <small>Score ${x.score}/100</small>
+        <small>Score ${x.score}/100 · ${esc(x.blocker)}</small>
       </div>`).join('')||'<p>Vacío</p>'}
     </div>`
   }).join('')
- }catch(e){}
+ }catch(e){pipelineBoard.innerHTML='<p>No pude cargar el pipeline.</p>'}
 }
-async function renderCalendar(){try{const r=await fetch(API_URL+'/analytics/calendar');const d=await r.json();calendarGrid.innerHTML=d.items.map(x=>`<div class="day-card"><span>${esc(x.day)} · ${esc(x.time)}</span><h3>${esc(x.title)}</h3><p>${esc(x.platform)}</p></div>`).join('')}catch(e){}}
-async function renderSources(){try{const r=await fetch(API_URL+'/marketdna/sources');const d=await r.json();sourcesGrid.innerHTML=d.items.map(s=>`<div class="source-card"><span>${esc(s.type)}</span><h3>${esc(s.name)}</h3><p>${esc(s.summary)}</p><div class="tags">${s.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div></div>`).join('')}catch(e){}}
-async function createProperty(){const title=newPropertyTitle.value.trim();if(!title){toast('Poné un título de propiedad');return}const url=newPropertyUrl.value.trim();try{const r=await fetch(API_URL+'/properties',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,url})});const d=await r.json();propertyList.innerHTML+=`<div class="source-card"><h3>${esc(d.item.title)}</h3><p>${esc(d.item.url||'Sin link')}</p></div>`;newPropertyTitle.value='';newPropertyUrl.value='';toast('Propiedad creada en demo')}catch(e){toast('No se pudo crear')}}
-function renderAllDashboards(){renderCommandCenter();renderPipeline();renderCalendar();renderSources()}
+async function renderCalendar(){
+ try{
+  const r=await fetch(API_URL+'/analytics/calendar-detail');
+  const d=await r.json();
+  const days=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  calendarGrid.innerHTML=days.map(day=>{
+    const items=d.items.filter(x=>x.day===day);
+    return `<div class="calendar-day polished">
+      <h3>${day}<span>${items.length}</span></h3>
+      ${items.map(x=>`<div class="calendar-item polished">
+        <span>${esc(x.time)} · ${esc(x.platform)}</span>
+        <h4>${esc(x.title)}</h4>
+        <p>${esc(x.property)} · ${esc(x.goal)}</p>
+        <div class="quality-bar tiny"><span style="width:${x.score}%"></span></div>
+        <small>Score ${x.score}/100</small>
+      </div>`).join('')||'<p>Sin publicaciones</p>'}
+    </div>`
+  }).join('')
+ }catch(e){calendarGrid.innerHTML='<p>No pude cargar calendario.</p>'}
+}
+async function renderSources(){
+ try{
+  const r=await fetch(API_URL+'/analytics/marketdna-sources-detail');
+  const d=await r.json();
+  sourcesGrid.innerHTML=d.items.map(s=>`<div class="source-card polished-source">
+    <span>${esc(s.type)} · ${esc(s.status)}</span>
+    <h3>${esc(s.name)}</h3>
+    <p>${esc(s.value)}</p>
+    <div class="tags">${s.signals.map(t=>`<em>${esc(t)}</em>`).join('')}</div>
+  </div>`).join('')
+ }catch(e){sourcesGrid.innerHTML='<p>No pude cargar fuentes MarketDNA.</p>'}
+}
+async function createProperty(){const title=newPropertyTitle.value.trim();if(!title){toast('Poné un título de propiedad');return}const url=newPropertyUrl.value.trim();try{await apiPost('/data/properties',{title,url,location:'Rosario',property_type:'Propiedad',price:'',notes:'Creada desde MarketProp'});newPropertyTitle.value='';newPropertyUrl.value='';toast('Propiedad guardada en base real');loadPropertiesReal();loadRealDataDashboard()}catch(e){toast('No se pudo guardar en base real')}}
+function renderAllDashboards(){renderCommandCenter();renderPipeline();renderCalendar();renderSources();loadPropertiesReal();loadRealDataDashboard()}
 function esc(t){return String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+
+
+// v0.3.9 SaaS Foundation - persistent data layer
+async function apiGet(path){const r=await fetch(API_URL+path);if(!r.ok)throw new Error(path);return await r.json()}
+async function apiPost(path,payload){const r=await fetch(API_URL+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!r.ok)throw new Error(path);return await r.json()}
+async function loadPropertiesReal(){
+  if(!document.getElementById('propertyList')) return;
+  try{const props=await apiGet('/data/properties');propertyList.innerHTML=props.map(p=>`<div class="source-card"><h3>${esc(p.title)}</h3><p>${esc(p.location||'Sin zona')} · ${esc(p.property_type||'Tipo')} · ${esc(p.price||'Sin precio')}</p><small>${esc(p.url||'Sin link')}</small></div>`).join('')}
+  catch(e){}
+}
+async function loadRealDataDashboard(){
+  const holder=document.getElementById('realDataContent'); if(!holder) return;
+  try{const [props,contents,pipeline,calendar,sources]=await Promise.all([apiGet('/data/properties'),apiGet('/data/contents'),apiGet('/data/pipeline'),apiGet('/data/calendar'),apiGet('/data/sources')]);
+  holder.innerHTML=`
+    <div class="metric-grid command-metrics">
+      <div class="metric-card polished"><span>Propiedades guardadas</span><b>${props.length}</b><p>Persisten en SQLite</p><em>real local</em></div>
+      <div class="metric-card polished"><span>Contenidos guardados</span><b>${contents.length}</b><p>No se pierden al cerrar</p><em>real local</em></div>
+      <div class="metric-card polished"><span>Pipeline real</span><b>${pipeline.length}</b><p>Items guardados</p><em>real local</em></div>
+      <div class="metric-card polished"><span>Calendario real</span><b>${calendar.length}</b><p>Publicaciones guardadas</p><em>real local</em></div>
+    </div>
+    <div class="command-grid polished-grid">
+      <div class="chart-card-soft"><div class="panel-head mini"><div><span class="pill">Propiedades reales</span><h3>Base de propiedades</h3></div></div>${props.map(p=>`<div class="db-row"><b>${esc(p.title)}</b><span>${esc(p.location||'Sin zona')} · ${esc(p.property_type||'Tipo')} · ${esc(p.price||'Sin precio')}</span></div>`).join('')}</div>
+      <div class="chart-card-soft"><div class="panel-head mini"><div><span class="pill">Contenido real</span><h3>Contenido guardado</h3></div></div>${contents.map(c=>`<div class="db-row"><b>${esc(c.platform)} · ${esc(c.title||'Contenido')}</b><span>${esc((c.body||'').slice(0,120))}...</span></div>`).join('')}</div>
+    </div>
+    <div class="command-grid polished-grid">
+      <div class="chart-card-soft"><div class="panel-head mini"><div><span class="pill">Pipeline real</span><h3>Estados guardados</h3></div></div>${pipeline.map(p=>`<div class="db-row"><b>${esc(p.status)} · ${esc(p.property_title)}</b><span>${esc(p.next_action||'Sin próxima acción')}</span></div>`).join('')}</div>
+      <div class="chart-card-soft"><div class="panel-head mini"><div><span class="pill">MarketDNA real local</span><h3>Fuentes guardadas</h3></div></div>${sources.map(s=>`<div class="db-row"><b>${esc(s.name)}</b><span>${esc(s.value||'Sin detalle')}</span></div>`).join('')}</div>
+    </div>`}
+  catch(e){holder.innerHTML='<p>No pude cargar la base de datos local. Revisá que el backend esté prendido.</p>'}
+}
+async function createDemoProperty(){
+  const title='Propiedad nueva '+new Date().toLocaleTimeString();
+  await apiPost('/data/properties',{title,url:'https://www.ejemplo.com/propiedad-nueva',location:'Rosario',property_type:'Departamento',price:'USD 100.000',notes:'Creada desde la app en v0.3.9'});
+  await apiPost('/data/pipeline',{property_title:title,platform:'Instagram',format:'Reel',objective:'Generar consulta',status:'Propiedad cargada',owner:'Agus',score:82,next_action:'Generar contenido multired',blocker:'Sin bloqueo',source:'Alta manual'});
+  toast('Propiedad guardada en la base real local');loadPropertiesReal();loadRealDataDashboard();
+}

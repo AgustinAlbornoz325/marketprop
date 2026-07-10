@@ -22,3 +22,9 @@
 010 - Hotfix v0.3.6.1: corregido import registry/provider_registry y await en rutas sync.
 
 011 - v0.3.7: se mejora Command Center con métricas inmobiliarias sin cambiar diseño ni eliminar funciones.
+
+012 - v0.3.8: se mejora Pipeline, Calendario y MarketDNA sin quitar funciones existentes.
+
+013 - v0.3.8.1: hotfix acumulativo para restaurar métricas anteriores y logos/badges de redes sin quitar lo agregado en v0.3.8.
+
+014 - v0.3.9: se inicia estructura real de SaaS con SQLite, persistencia local, entidades centrales y endpoints CRUD.

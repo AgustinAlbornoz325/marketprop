@@ -40,3 +40,47 @@
 .pipeline-card small{color:var(--muted);font-weight:800;}
 @media(max-width:1100px){.command-metrics,.signal-grid,.slot-grid{grid-template-columns:1fr 1fr}.quality-cards{grid-template-columns:1fr 1fr}.funnel-row,.format-row{grid-template-columns:1fr}.quality-bar.small{min-width:0}}
 @media(max-width:700px){.command-metrics,.signal-grid,.slot-grid,.quality-cards{grid-template-columns:1fr}}
+
+/* v0.3.8 Pipeline + Calendar + MarketDNA */
+.pipeline-col.operational{min-width:280px;}
+.operational-card{background:linear-gradient(135deg,#f4fdff,#fff 72%);}
+.operational-card p{font-size:13px;line-height:1.35;margin:7px 0;color:var(--muted);}
+.operational-card p b{color:var(--ink);}
+.calendar-day.polished{background:linear-gradient(135deg,#eafaff,#fff 74%);border:1px solid var(--line);border-radius:24px;padding:14px;min-height:440px;}
+.calendar-day.polished h3{display:flex;justify-content:space-between;align-items:center;margin-top:0;}
+.calendar-day.polished h3 span{background:#e7faff;color:var(--blue3);border-radius:999px;padding:3px 8px;font-size:12px;}
+.calendar-item.polished{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;margin-bottom:10px;}
+.calendar-item.polished span{display:block;color:var(--blue3);font-weight:900;font-size:12px;margin-bottom:7px;}
+.calendar-item.polished h4{margin:0 0 6px;font-size:14px;}
+.calendar-item.polished p{font-size:12px;color:var(--muted);margin:0 0 8px;line-height:1.35;}
+.calendar-item.polished small,.operational-card small{font-size:11px;color:var(--muted);font-weight:800;}
+.polished-source{background:linear-gradient(135deg,#f2fcff,#fff 70%);border:1px solid var(--line);border-radius:24px;padding:18px;}
+.polished-source span{display:inline-flex;background:#e7faff;color:var(--blue3);border:1px solid #c8f3ff;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;}
+.polished-source p{color:var(--muted);line-height:1.45;}
+.polished-source .tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;}
+.polished-source .tags em{font-style:normal;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:var(--muted);font-size:11px;font-weight:800;}
+
+/* v0.3.8.1 Restore Metrics + Social Logos */
+.restore-block{margin-bottom:18px;}
+.social-metrics{grid-template-columns:repeat(4,minmax(0,1fr));}
+.metric-card.restored{position:relative;overflow:hidden;background:linear-gradient(135deg,#ffffff 0%,#eefbff 70%);border:1px solid #cfeef7;}
+.metric-card.restored::before{content:"";position:absolute;right:-34px;top:-34px;width:108px;height:108px;border-radius:50%;background:radial-gradient(circle,rgba(0,194,255,.20),transparent 68%);}
+.metric-card.restored em{display:inline-flex;margin-top:8px;background:#e7faff;color:var(--blue3);border:1px solid #c8f3ff;border-radius:999px;padding:5px 9px;font-style:normal;font-size:12px;font-weight:900;}
+.platform-title{display:flex;align-items:center;gap:10px;}
+.platform-logo{width:34px;height:34px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:1000;letter-spacing:-.4px;color:#fff;box-shadow:0 10px 22px rgba(2,132,199,.14);flex:0 0 auto;}
+.platform-logo.facebook{background:linear-gradient(135deg,#1877f2,#0b4aa2);}
+.platform-logo.instagram{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);}
+.platform-logo.tiktok{background:linear-gradient(135deg,#111,#20f5ef);}
+.platform-logo.whatsapp{background:linear-gradient(135deg,#25d366,#128c7e);}
+.platform-logo.mercado_libre{background:linear-gradient(135deg,#ffe600,#1b4dbf);color:#173b7a;}
+.platform-logo.meta_ads{background:linear-gradient(135deg,#0064e0,#00c2ff);}
+.social-feature-grid button{display:flex;align-items:center;gap:10px;justify-content:flex-start;}
+.social-feature-grid .platform-logo{width:30px;height:30px;border-radius:10px;font-size:11px;}
+@media(max-width:1100px){.social-metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.social-metrics{grid-template-columns:1fr}}
+
+/* v0.3.9 SaaS Foundation */
+.db-row{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;display:grid;gap:5px;}
+.db-row b{font-size:14px;color:var(--ink);}
+.db-row span{font-size:12px;color:var(--muted);line-height:1.35;}
+.db-row small{font-size:11px;color:var(--muted);}

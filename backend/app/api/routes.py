@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.marketmind.orchestrator import MarketMindOrchestrator
 from app.marketmind.providers.registry import registry
+from app.marketmind.analytics.mock_data import PIPELINE_DETAIL, PIPELINE_STATUSES, CALENDAR_DETAIL, MARKETDNA_SOURCES_DETAIL
 from app.marketmind.analytics.mock_data import COMMAND_CENTER, PIPELINE, CALENDAR, SOURCES
 
 router = APIRouter()
@@ -64,7 +65,7 @@ async def variation(req: VariationRequest):
 
 @router.get("/marketmind/health")
 def health():
-    return {"marketmind": "active", "version": "0.3.7", "mode": "consolidated-command-center"}
+    return {"marketmind": "active", "version": "0.3.9", "mode": "restore-metrics-social-logos"}
 
 @router.get("/marketmind/providers")
 def providers():
@@ -96,3 +97,16 @@ def create_property(req: PropertyRequest):
     item["id"] = len(PROPERTIES) + 1
     PROPERTIES.append(item)
     return {"item": item}
+
+
+@router.get("/analytics/pipeline-detail")
+def pipeline_detail():
+    return {"statuses": PIPELINE_STATUSES, "items": PIPELINE_DETAIL}
+
+@router.get("/analytics/calendar-detail")
+def calendar_detail():
+    return {"items": CALENDAR_DETAIL}
+
+@router.get("/analytics/marketdna-sources-detail")
+def marketdna_sources_detail():
+    return {"items": MARKETDNA_SOURCES_DETAIL}

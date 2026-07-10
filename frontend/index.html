@@ -15,7 +15,7 @@
       <div class="tabs"><button id="loginTab" class="active" onclick="setAuth('login')">Ingresar</button><button id="registerTab" onclick="setAuth('register')">Crear cuenta</button></div>
       <div id="loginForm"><input id="loginEmail" placeholder="Email"><input id="loginPassword" type="password" placeholder="Contraseña"><button id="loginBtn" onclick="login()">Entrar</button></div>
       <div id="registerForm" class="hidden"><input id="regName" placeholder="Tu nombre"><input id="regOrg" placeholder="Nombre de tu inmobiliaria"><input id="regEmail" placeholder="Email"><input id="regPassword" type="password" placeholder="Contraseña"><button id="registerBtn" onclick="register()">Crear cuenta</button></div>
-      <small>v0.3.7 Command Center Polish</small>
+      <small>v0.3.9 SaaS Foundation Database</small>
     </div>
   </div>
 </div>
@@ -35,7 +35,8 @@
       <button class="nav featured" onclick="show('hookAgent',this)">✦ Agente Hook</button>
       <button class="nav" onclick="show('campaigns',this)">◈ Campañas</button>
       <button class="nav" onclick="show('stats',this)">△ Estadísticas</button>
-      <button class="nav" onclick="show('igReady',this)">IG IG Ready</button>
+      <button class="nav" onclick="show('igReady',this)">IG Ready</button>
+      <button class="nav featured" onclick="show('realData',this)">▣ Base real</button>
       <button class="nav" onclick="show('admin',this)">◎ Panel Admin</button>
       <button class="nav" onclick="show('plans',this)">◇ Planes</button>
     </nav>
@@ -47,7 +48,14 @@
     <section id="home" class="section active-section">
       <div class="hero-card">
         <div class="hero-copy"><div class="pill">MarketMind + Provider Gateway activo</div><h2 class="compact-hero"><span>La IA hace todo el marketing.</span><br>Vos vendé propiedades, ganá tiempo.</h2><p>Pegá el link de una propiedad y MarketProp crea automáticamente publicaciones, anuncios y contenido optimizado para cada plataforma.</p></div>
-        <div class="hero-side"><h3>Agentes activos</h3><div class="feature-grid"><button>Facebook</button><button>Instagram</button><button>TikTok</button><button>WhatsApp</button><button>Mercado Libre</button><button>Meta Ads</button></div></div>
+        <div class="hero-side"><h3>Agentes activos</h3><div class="feature-grid social-feature-grid">
+  <button><span class="platform-logo facebook">f</span>Facebook</button>
+  <button><span class="platform-logo instagram">IG</span>Instagram</button>
+  <button><span class="platform-logo tiktok">TK</span>TikTok</button>
+  <button><span class="platform-logo whatsapp">WA</span>WhatsApp</button>
+  <button><span class="platform-logo mercado_libre">ML</span>Mercado Libre</button>
+  <button><span class="platform-logo meta_ads">Meta</span>Meta Ads</button>
+</div></div>
       </div>
       <div class="generator"><label>LINK DE LA PROPIEDAD</label><div class="input-row"><input id="propertyUrl" placeholder="https://www.tuinmobiliaria.com/propiedad/xxxxx"><select id="globalStyle"><option value="auto">Automático</option><option value="profesional">Profesional</option><option value="premium">Premium</option><option value="urgencia">Urgencia</option><option value="inversor">Inversor</option></select><button id="generateBtn" onclick="generateContent()">✨ Generar</button></div><div id="status" class="status">Cada red usa su agente, proveedor, modelo y evaluador.</div><div id="scan" class="scan"></div></div>
       <div id="results" class="results empty"><h3>Contenido</h3><p>Los resultados aparecerán acá después de pegar un link.</p></div>
@@ -65,6 +73,18 @@
     <section id="campaigns" class="section panel"><h2>Campañas</h2><p>Próximo: campañas completas por propiedad con Meta Ads, WhatsApp y seguimiento.</p></section>
     <section id="stats" class="section panel"><h2>Estadísticas</h2><div id="statsContent" class="mini-stats"></div></section>
     <section id="igReady" class="section panel"><div class="panel-head"><div><span class="pill">Preparado, no conectado</span><h2>Instagram Connector</h2><p>La estructura queda lista para conectar IG Business con permisos reales más adelante.</p></div></div><div class="checklist"><div><span class="check">✓</span>Provider Gateway separado</div><div><span class="check">✓</span>MarketMind preparado para métricas</div><div><span class="check">✓</span>Estados de error preparados</div><div><span class="empty"></span>Token real cargado</div><div><span class="empty"></span>Permisos Meta aprobados</div><div><span class="empty"></span>Webhooks activos</div></div></section>
+
+    <section id="realData" class="section panel">
+      <div class="panel-head">
+        <div>
+          <span class="pill">v0.3.9 · SaaS Foundation</span>
+          <h2>Base real de MarketProp</h2>
+          <p>Primer paso profesional: datos persistentes en SQLite. Propiedades, contenidos, pipeline, calendario y MarketDNA ya no son solo decoración.</p>
+        </div>
+        <button onclick="createDemoProperty()">+ Crear propiedad demo real</button>
+      </div>
+      <div id="realDataContent" class="command-content"><p>Cargando base de datos local...</p></div>
+    </section>
     <section id="admin" class="section panel"><h2>Panel Admin</h2><div class="mini-stats"><div><b>1</b><span>cliente activo</span></div><div><b>$0</b><span>MRR demo</span></div><div><b>15</b><span>módulos preservados</span></div></div></section>
     <section id="plans" class="section panel"><h2>Planes</h2><div class="pricing"><div><h3>Básico</h3><p>Agentes esenciales.</p></div><div><h3>Pro</h3><p>Command Center + métricas.</p></div><div><h3>Business</h3><p>IA real + equipo + permisos.</p></div></div></section>
   </main>

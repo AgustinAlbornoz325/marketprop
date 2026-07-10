@@ -1,4 +1,18 @@
 COMMAND_CENTER = {
+    "social_metrics": [
+        {"label": "Views", "value": "238K", "delta": "+18%", "detail": "Reproducciones estimadas"},
+        {"label": "Reach", "value": "74.2K", "delta": "+11%", "detail": "Alcance mock multired"},
+        {"label": "Followers", "value": "+1.248", "delta": "+9%", "detail": "Crecimiento de audiencia"},
+        {"label": "Engagement", "value": "7.8%", "delta": "+1.4", "detail": "Interacción promedio"},
+        {"label": "Comentarios", "value": "642", "delta": "+22%", "detail": "Señales de interés"},
+        {"label": "Retención", "value": "41%", "delta": "+5", "detail": "Retención en video"},
+        {"label": "CTR Bio", "value": "3.6%", "delta": "+0.7", "detail": "Clicks hacia contacto"},
+        {"label": "DMs", "value": "214", "delta": "+31%", "detail": "Consultas por mensaje"},
+        {"label": "Guardados", "value": "1.920", "delta": "+16%", "detail": "Interés en propiedades"},
+        {"label": "Compartidos", "value": "384", "delta": "+12%", "detail": "Contenido recomendado"},
+        {"label": "Visitas perfil", "value": "6.7K", "delta": "+19%", "detail": "Tráfico al perfil"},
+        {"label": "Frecuencia", "value": "2.4", "delta": "-0.3", "detail": "Control de repetición"}
+    ],
     "kpis": [
         {"label": "Contenido generado", "value": "128", "delta": "+24%", "detail": "Piezas creadas este mes"},
         {"label": "MarketMind Score", "value": "91", "delta": "+6", "detail": "Promedio de calidad"},
@@ -86,4 +100,158 @@ SOURCES = [
     {"name": "Banco de hooks inmobiliarios", "type": "Curado", "summary": "Patrones por zona, precio, urgencia e inversión.", "tags": ["hooks", "viralidad", "MarketMind"]},
     {"name": "Videos virales", "type": "Escaneo Videos", "summary": "Inspira formatos sin copiar contenido.", "tags": ["reels", "tiktok", "patrones"]},
     {"name": "Quality Gate", "type": "Reglas", "summary": "Evalúa claridad, CTA, plataforma y originalidad.", "tags": ["score", "calidad", "bloqueo"]},
+]
+
+
+# v0.3.8 additions - operational layer
+PIPELINE_STATUSES = [
+    "Propiedad cargada",
+    "Contenido generado",
+    "Revisión pendiente",
+    "Aprobado",
+    "Publicado",
+    "Midiendo",
+    "Ganador"
+]
+
+PIPELINE_DETAIL = [
+    {
+        "status": "Propiedad cargada",
+        "property": "Casa premium en Funes",
+        "platform": "Todas",
+        "format": "Multired",
+        "objective": "Generar consultas calificadas",
+        "score": 94,
+        "owner": "Agus",
+        "next_action": "Crear pack completo: Reel + Stories + Meta Ad + WhatsApp",
+        "blocker": "Sin bloqueo",
+        "source": "Link de propiedad"
+    },
+    {
+        "status": "Contenido generado",
+        "property": "Departamento Rosario Centro",
+        "platform": "Instagram",
+        "format": "Reel",
+        "objective": "Agendar visita",
+        "score": 89,
+        "owner": "Agus",
+        "next_action": "Revisar hook de primeros 3 segundos",
+        "blocker": "Falta video/foto principal",
+        "source": "Link de propiedad"
+    },
+    {
+        "status": "Revisión pendiente",
+        "property": "Terreno Fisherton",
+        "platform": "Instagram",
+        "format": "Carrusel",
+        "objective": "Captar inversores",
+        "score": 78,
+        "owner": "Equipo",
+        "next_action": "Agregar argumento de rentabilidad/zona",
+        "blocker": "CTA poco fuerte",
+        "source": "MarketDNA: objeciones"
+    },
+    {
+        "status": "Aprobado",
+        "property": "Monoambiente Centro",
+        "platform": "WhatsApp",
+        "format": "Mensaje directo",
+        "objective": "Reactivar prospectos",
+        "score": 92,
+        "owner": "Agus",
+        "next_action": "Enviar a lista de interesados",
+        "blocker": "Sin bloqueo",
+        "source": "Consultas WhatsApp"
+    },
+    {
+        "status": "Publicado",
+        "property": "Casa Fisherton",
+        "platform": "Meta Ads",
+        "format": "Anuncio",
+        "objective": "Generar lead",
+        "score": 86,
+        "owner": "Equipo",
+        "next_action": "Medir CTR y costo por consulta",
+        "blocker": "Esperando métricas",
+        "source": "Meta Ads"
+    },
+    {
+        "status": "Midiendo",
+        "property": "Lote Funes",
+        "platform": "Facebook",
+        "format": "Post grupos",
+        "objective": "DM",
+        "score": 84,
+        "owner": "Agus",
+        "next_action": "Comparar comentarios vs DMs",
+        "blocker": "Métricas incompletas",
+        "source": "Facebook orgánico"
+    },
+    {
+        "status": "Ganador",
+        "property": "Departamento Pichincha",
+        "platform": "Instagram",
+        "format": "Reel",
+        "objective": "Consulta por DM",
+        "score": 96,
+        "owner": "Agus",
+        "next_action": "Duplicar ángulo para propiedades similares",
+        "blocker": "Sin bloqueo",
+        "source": "Publicación anterior"
+    }
+]
+
+CALENDAR_DETAIL = [
+    {"day": "Lun", "time": "10:00", "title": "Reel: casa premium en Funes", "platform": "Instagram/TikTok", "property": "Casa premium Funes", "goal": "Alcance + DM", "score": 92},
+    {"day": "Lun", "time": "18:00", "title": "Story: encuesta financiación", "platform": "Instagram Stories", "property": "General compradores", "goal": "Responder dudas", "score": 86},
+    {"day": "Mar", "time": "12:30", "title": "Carrusel: errores al comprar terreno", "platform": "Instagram", "property": "Terreno Fisherton", "goal": "Captar inversores", "score": 88},
+    {"day": "Mié", "time": "11:00", "title": "WhatsApp broadcast: monoambiente centro", "platform": "WhatsApp", "property": "Monoambiente Centro", "goal": "Reactivar leads", "score": 91},
+    {"day": "Jue", "time": "20:00", "title": "Meta Ad: departamento Rosario", "platform": "Meta Ads", "property": "Departamento Rosario", "goal": "Lead pago", "score": 84},
+    {"day": "Vie", "time": "10:30", "title": "Facebook grupos: lote Funes", "platform": "Facebook", "property": "Lote Funes", "goal": "Consulta orgánica", "score": 80},
+    {"day": "Dom", "time": "20:30", "title": "Resumen semanal de oportunidades", "platform": "Instagram Stories", "property": "Varias", "goal": "Confianza + autoridad", "score": 87}
+]
+
+MARKETDNA_SOURCES_DETAIL = [
+    {
+        "name": "Publicaciones anteriores",
+        "type": "Historial de contenido",
+        "status": "Activo mock",
+        "value": "Detecta tono, CTAs y hooks que mejor funcionan para la inmobiliaria.",
+        "signals": ["CTA ganador: te paso más info", "Mejor formato: Reel", "Tono preferido: premium/profesional"]
+    },
+    {
+        "name": "DMs de Instagram",
+        "type": "Futuro conector Meta",
+        "status": "Preparado, no conectado",
+        "value": "Detectará preguntas repetidas, objeciones y palabras reales de compradores.",
+        "signals": ["Financiación", "Permuta", "Gastos iniciales"]
+    },
+    {
+        "name": "Consultas WhatsApp",
+        "type": "Fuente comercial",
+        "status": "Mock",
+        "value": "Convierte conversaciones frecuentes en ideas de contenido y mensajes de cierre.",
+        "signals": ["¿Sigue disponible?", "¿Acepta entrega?", "¿Se puede visitar?"]
+    },
+    {
+        "name": "Banco de hooks inmobiliarios",
+        "type": "Knowledge base",
+        "status": "Activo",
+        "value": "Le da a Agente Hook patrones de atención por objetivo.",
+        "signals": ["Antes de comprar", "Error común", "Mirada inversor"]
+    },
+    {
+        "name": "Escaneo Videos",
+        "type": "Patrones virales",
+        "status": "Próximo sprint",
+        "value": "Analizará Reels/TikToks sin copiar, extrayendo estructura, ritmo y ángulo.",
+        "signals": ["primer segundo", "retención", "CTA visual"]
+    },
+    {
+        "name": "Quality Gate",
+        "type": "Reglas MarketMind",
+        "status": "Activo",
+        "value": "Bloquea o alerta contenido con hook débil, CTA flojo o baja adaptación a plataforma.",
+        "signals": ["hook", "claridad", "CTA", "originalidad"]
+    }
 ]
