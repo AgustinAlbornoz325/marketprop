@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MarketProp Admin Master</title>
+  <link rel="stylesheet" href="../frontend/static/styles.css">
+  <style>
+    body{background:linear-gradient(135deg,#f4fcff,#fff);color:#071923;font-family:Inter,Arial,sans-serif;margin:0}
+    .admin-shell{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+    .admin-side{background:#fff;border-right:1px solid #dcecf3;padding:24px;position:sticky;top:0;height:100vh}
+    .admin-brand{display:flex;align-items:center;gap:12px;margin-bottom:26px}
+    .admin-logo{width:44px;height:44px;border-radius:16px;background:linear-gradient(135deg,#00c2ff,#e7faff);display:grid;place-items:center;font-weight:1000;color:#063b53}
+    .admin-side button{width:100%;text-align:left;background:#f2fbff;border:1px solid #dcecf3;border-radius:16px;padding:13px 14px;margin:7px 0;font-weight:900;color:#123}
+    .admin-main{padding:30px;max-width:1300px}
+    .admin-hero{background:linear-gradient(135deg,#e7faff,#fff);border:1px solid #dcecf3;border-radius:28px;padding:26px;margin-bottom:20px;box-shadow:0 18px 44px rgba(2,132,199,.08)}
+    .admin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+    .admin-card{background:#fff;border:1px solid #dcecf3;border-radius:22px;padding:18px;box-shadow:0 12px 30px rgba(2,132,199,.06)}
+    .admin-card span{color:#64748b;font-size:12px;font-weight:900;text-transform:uppercase}
+    .admin-card b{display:block;font-size:30px;margin:8px 0;color:#0284c7}
+    .admin-panel{background:#fff;border:1px solid #dcecf3;border-radius:26px;padding:20px;margin-bottom:18px}
+    .admin-table{width:100%;border-collapse:separate;border-spacing:0 10px}
+    .admin-table th{text-align:left;font-size:12px;color:#64748b;text-transform:uppercase}
+    .admin-table td{background:#f8fdff;border-top:1px solid #dcecf3;border-bottom:1px solid #dcecf3;padding:14px;font-size:14px}
+    .admin-table td:first-child{border-left:1px solid #dcecf3;border-radius:14px 0 0 14px;font-weight:900}
+    .admin-table td:last-child{border-right:1px solid #dcecf3;border-radius:0 14px 14px 0}
+    .badge{display:inline-flex;border-radius:999px;padding:5px 9px;background:#e7faff;color:#0284c7;font-weight:900;font-size:12px;border:1px solid #c8f3ff}
+    .badge.danger{background:#fff0f0;color:#e11d48;border-color:#ffd1dc}
+    .badge.success{background:#eafff4;color:#059669;border-color:#bef6d3}
+    .note{color:#64748b;line-height:1.5}
+    @media(max-width:900px){.admin-shell{grid-template-columns:1fr}.admin-side{height:auto;position:relative}.admin-grid{grid-template-columns:1fr 1fr}.admin-main{padding:18px}}
+  </style>
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-side">
+      <div class="admin-brand"><div class="admin-logo">MP</div><div><b>MarketProp</b><br><span>Admin Master</span></div></div>
+      <button onclick="showAdmin('overview')">Resumen</button>
+      <button onclick="showAdmin('clients')">Clientes / inmobiliarias</button>
+      <button onclick="showAdmin('plans')">Planes y límites</button>
+      <button onclick="showAdmin('usage')">Uso de IA</button>
+      <button onclick="showAdmin('billing')">Facturación</button>
+      <button onclick="showAdmin('security')">Seguridad</button>
+      <p class="note">Este panel es solo para el dueño de MarketProp. No aparece en el panel del cliente.</p>
+    </aside>
+    <main class="admin-main">
+      <section class="admin-hero">
+        <span class="badge">v0.3.10.1 · Separación admin/cliente</span>
+        <h1>Panel Master Admin</h1>
+        <p class="note">Acá se administran inmobiliarias, usuarios, planes, límites, suscripciones y consumo. El cliente no debe ver esta información.</p>
+      </section>
+
+      <section id="overview" class="admin-section">
+        <div class="admin-grid">
+          <div class="admin-card"><span>Clientes activos</span><b>12</b><p class="note">Mock admin</p></div>
+          <div class="admin-card"><span>MRR estimado</span><b>$840K</b><p class="note">Mock facturación</p></div>
+          <div class="admin-card"><span>Uso IA mensual</span><b>38%</b><p class="note">Límites mock</p></div>
+          <div class="admin-card"><span>Alertas</span><b>3</b><p class="note">Pagos / límites</p></div>
+        </div>
+        <div class="admin-panel">
+          <h2>Qué controla este panel</h2>
+          <p class="note">Alta/baja de clientes, roles internos, planes, límites, facturación, estado de suscripción, consumo de IA y soporte.</p>
+        </div>
+      </section>
+
+      <section id="clients" class="admin-section" style="display:none">
+        <div class="admin-panel">
+          <h2>Clientes / inmobiliarias</h2>
+          <table class="admin-table">
+            <thead><tr><th>Inmobiliaria</th><th>Plan</th><th>Estado</th><th>Usuarios</th><th>Uso IA</th></tr></thead>
+            <tbody>
+              <tr><td>Demo Inmobiliaria Rosario</td><td>Pro</td><td><span class="badge success">Activa</span></td><td>4</td><td>42%</td></tr>
+              <tr><td>Funes Propiedades</td><td>Básico</td><td><span class="badge success">Activa</span></td><td>2</td><td>21%</td></tr>
+              <tr><td>Premium Real Estate</td><td>Enterprise</td><td><span class="badge danger">Pago pendiente</span></td><td>8</td><td>74%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="plans" class="admin-section" style="display:none">
+        <div class="admin-panel">
+          <h2>Planes y límites</h2>
+          <table class="admin-table">
+            <thead><tr><th>Plan</th><th>Contenidos/mes</th><th>Usuarios</th><th>Conectores</th><th>Precio mock</th></tr></thead>
+            <tbody>
+              <tr><td>Básico</td><td>100</td><td>2</td><td>Manual</td><td>$49.000</td></tr>
+              <tr><td>Pro</td><td>500</td><td>5</td><td>Meta + WhatsApp preparado</td><td>$89.000</td></tr>
+              <tr><td>Enterprise</td><td>Ilimitado controlado</td><td>15</td><td>Conectores avanzados</td><td>A medida</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="usage" class="admin-section" style="display:none">
+        <div class="admin-panel">
+          <h2>Uso de IA</h2>
+          <p class="note">Más adelante esto se conectará al Provider Gateway para medir costo por cliente, tokens, proveedor usado y límites.</p>
+        </div>
+      </section>
+
+      <section id="billing" class="admin-section" style="display:none">
+        <div class="admin-panel">
+          <h2>Facturación</h2>
+          <p class="note">Preparado para conectar Mercado Pago / Stripe según mercado objetivo. Todavía mock.</p>
+        </div>
+      </section>
+
+      <section id="security" class="admin-section" style="display:none">
+        <div class="admin-panel">
+          <h2>Seguridad</h2>
+          <p class="note">Próxima etapa: auth real, roles, permisos, JWT/sesiones, separación estricta por workspace y protección del panel admin.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    function showAdmin(id){
+      document.querySelectorAll('.admin-section').forEach(s=>s.style.display='none');
+      document.getElementById(id).style.display='block';
+    }
+  </script>
+</body>
+</html>

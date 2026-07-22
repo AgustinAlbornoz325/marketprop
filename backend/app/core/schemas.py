@@ -1,5 +1,45 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
+
+class WorkspaceCreate(BaseModel):
+    name: str
+    slug: Optional[str] = None
+    plan: Optional[str] = "Básico"
+
+class WorkspaceOut(BaseModel):
+    id: int
+    name: str
+    slug: str
+    status: str
+    plan: str
+    class Config:
+        from_attributes = True
+
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    role: Optional[str] = "member"
+
+class UserOut(BaseModel):
+    id: int
+    workspace_id: int
+    name: str
+    email: str
+    role: str
+    status: str
+    class Config:
+        from_attributes = True
+
+class PlanOut(BaseModel):
+    id: int
+    workspace_id: int
+    plan_name: str
+    status: str
+    monthly_content_limit: int
+    ai_credit_limit: int
+    seats_limit: int
+    class Config:
+        from_attributes = True
 
 class PropertyCreate(BaseModel):
     title: str
@@ -9,6 +49,8 @@ class PropertyCreate(BaseModel):
     price: Optional[str] = None
     status: Optional[str] = "Activa"
     notes: Optional[str] = None
+    workspace_id: Optional[int] = 1
+
 class PropertyOut(PropertyCreate):
     id: int
     class Config:
@@ -23,6 +65,8 @@ class ContentCreate(BaseModel):
     body: str
     score: Optional[int] = 0
     status: Optional[str] = "Contenido generado"
+    workspace_id: Optional[int] = 1
+
 class ContentOut(ContentCreate):
     id: int
     class Config:
@@ -39,6 +83,8 @@ class PipelineCreate(BaseModel):
     next_action: Optional[str] = None
     blocker: Optional[str] = None
     source: Optional[str] = None
+    workspace_id: Optional[int] = 1
+
 class PipelineOut(PipelineCreate):
     id: int
     class Config:
@@ -52,6 +98,8 @@ class CalendarCreate(BaseModel):
     property_title: Optional[str] = None
     goal: Optional[str] = None
     score: Optional[int] = 80
+    workspace_id: Optional[int] = 1
+
 class CalendarOut(CalendarCreate):
     id: int
     class Config:
@@ -63,6 +111,8 @@ class SourceCreate(BaseModel):
     status: Optional[str] = "Mock"
     value: Optional[str] = None
     signals: Optional[str] = None
+    workspace_id: Optional[int] = 1
+
 class SourceOut(SourceCreate):
     id: int
     class Config:

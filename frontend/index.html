@@ -15,7 +15,7 @@
       <div class="tabs"><button id="loginTab" class="active" onclick="setAuth('login')">Ingresar</button><button id="registerTab" onclick="setAuth('register')">Crear cuenta</button></div>
       <div id="loginForm"><input id="loginEmail" placeholder="Email"><input id="loginPassword" type="password" placeholder="Contraseña"><button id="loginBtn" onclick="login()">Entrar</button></div>
       <div id="registerForm" class="hidden"><input id="regName" placeholder="Tu nombre"><input id="regOrg" placeholder="Nombre de tu inmobiliaria"><input id="regEmail" placeholder="Email"><input id="regPassword" type="password" placeholder="Contraseña"><button id="registerBtn" onclick="register()">Crear cuenta</button></div>
-      <small>v0.3.9 SaaS Foundation Database</small>
+      <small>v0.3.10.1 Client/Admin Separation</small>
     </div>
   </div>
 </div>
@@ -37,6 +37,7 @@
       <button class="nav" onclick="show('stats',this)">△ Estadísticas</button>
       <button class="nav" onclick="show('igReady',this)">IG Ready</button>
       <button class="nav featured" onclick="show('realData',this)">▣ Base real</button>
+      <button class="nav featured" onclick="show('panel',this)">◉ Panel</button>
       <button class="nav" onclick="show('admin',this)">◎ Panel Admin</button>
       <button class="nav" onclick="show('plans',this)">◇ Planes</button>
     </nav>
@@ -85,7 +86,10 @@
       </div>
       <div id="realDataContent" class="command-content"><p>Cargando base de datos local...</p></div>
     </section>
-    <section id="admin" class="section panel"><h2>Panel Admin</h2><div class="mini-stats"><div><b>1</b><span>cliente activo</span></div><div><b>$0</b><span>MRR demo</span></div><div><b>15</b><span>módulos preservados</span></div></div></section>
+
+    
+
+    
     <section id="plans" class="section panel"><h2>Planes</h2><div class="pricing"><div><h3>Básico</h3><p>Agentes esenciales.</p></div><div><h3>Pro</h3><p>Command Center + métricas.</p></div><div><h3>Business</h3><p>IA real + equipo + permisos.</p></div></div></section>
   </main>
 </div>

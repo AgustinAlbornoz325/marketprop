@@ -1,13 +1,13 @@
-const API_URL='http://127.0.0.1:8000/api';let currentProperty=null,currentUser=null;
+const API_URL='http://127.0.0.1:8000/api';let currentProperty=null,currentUser=null,currentWorkspaceId=1;
 const pipelineStatuses=['Propiedad cargada','Contenido generado','Revisión pendiente','Aprobado','Publicado','Midiendo'];
 function toast(msg){const t=document.getElementById('toast');t.innerText=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2600)}
 function load(btn,on){if(!btn)return;if(on){btn.dataset.old=btn.innerHTML;btn.disabled=true;btn.innerHTML='Procesando...'}else{btn.disabled=false;btn.innerHTML=btn.dataset.old||btn.innerHTML}}
 function setAuth(m){document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));if(m==='login'){loginTab.classList.add('active');loginForm.classList.remove('hidden');registerForm.classList.add('hidden')}else{registerTab.classList.add('active');registerForm.classList.remove('hidden');loginForm.classList.add('hidden')}}
 async function login(){try{if(!loginEmail.value||!loginPassword.value){toast('Completá email y contraseña.');return}load(loginBtn,true);const r=await fetch(API_URL+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail.value,password:loginPassword.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');currentUser=d.user;enter()}catch(e){toast(e.message||'No se pudo iniciar sesión')}finally{load(loginBtn,false)}}
 async function register(){try{if(!regName.value||!regOrg.value||!regEmail.value||!regPassword.value){toast('Completá todos los campos.');return}load(registerBtn,true);const r=await fetch(API_URL+'/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:regName.value,organization_name:regOrg.value,email:regEmail.value,password:regPassword.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');currentUser=d.user;enter()}catch(e){toast(e.message||'No se pudo crear cuenta')}finally{load(registerBtn,false)}}
-function enter(){authScreen.classList.add('hidden');appScreen.classList.remove('hidden');welcomeTitle.innerText='Hola, '+(currentUser.organization_name||currentUser.name);orgName.innerText=currentUser.organization_name;planName.innerText=currentUser.plan;toast('Bienvenido a MarketProp');renderAllDashboards()}
+function enter(){currentWorkspaceId=currentUser.workspace_id||1;localStorage.setItem('marketprop_workspace_id',currentWorkspaceId);authScreen.classList.add('hidden');appScreen.classList.remove('hidden');welcomeTitle.innerText='Hola, '+(currentUser.organization_name||currentUser.name);orgName.innerText=currentUser.organization_name;planName.innerText=currentUser.plan;toast('Bienvenido a MarketProp');renderAllDashboards();/* admin-only: loadWorkspaceDashboard() */}
 function logout(){location.reload()}
-function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));document.getElementById(id).classList.add('active-section');document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));if(btn)btn.classList.add('active'); if(['command','pipeline','calendar','sources','stats'].includes(id)) renderAllDashboards(); if(id==='realData') loadRealDataDashboard()}
+function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));document.getElementById(id).classList.add('active-section');document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));if(btn)btn.classList.add('active'); if(['command','pipeline','calendar','sources','stats'].includes(id)) renderAllDashboards(); if(id==='realData') loadRealDataDashboard(); if(id==='workspace') /* admin-only: loadWorkspaceDashboard() */}
 function notifySoon(){toast('Función preparada para el próximo sprint.')}
 async function generateContent(){const url=propertyUrl.value.trim();if(!url){toast('Pegá el link de una propiedad.');return}if(!url.startsWith('http://')&&!url.startsWith('https://')){toast('El link debe empezar con http:// o https://');return}results.innerHTML='<h3>Contenido</h3><p>Generando contenido con MarketMind...</p>';scan.innerHTML='';status.innerText='MarketMind está coordinando agentes...';load(generateBtn,true);for(const s of ['Agente Propiedad analiza el link','Agente Copy define el enfoque','MarketMind elige agente, proveedor y modelo','Agente Evaluador puntúa calidad','Contenido listo']){await new Promise(r=>setTimeout(r,220));scan.innerHTML+='✓ '+s+'<br>'}try{const r=await fetch(API_URL+'/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,style:globalStyle.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'No se pudo generar');currentProperty=d.property;renderResults(d.content);status.innerText='Contenido generado correctamente.';toast('Contenido generado')}catch(e){toast(e.message||'Error al generar');status.innerText='Error'}finally{load(generateBtn,false)}}
 function renderResults(c){const names={facebook:'Facebook',instagram:'Instagram',tiktok:'TikTok',whatsapp:'WhatsApp',mercado_libre:'Mercado Libre',meta_ads:'Meta Ads'};const logos={facebook:'f',instagram:'IG',tiktok:'TK',whatsapp:'WA',mercado_libre:'ML',meta_ads:'Meta'};let h='<h3>Contenido generado</h3><div class="result-grid">';Object.keys(c).forEach(k=>{let v=c[k].text;if(typeof v==='object')v=JSON.stringify(v,null,2);h+=`<div class="result-card"><h3 class="platform-title"><span class="platform-logo ${k}">${logos[k]}</span>${names[k]}</h3><span class="style-badge">${c[k].agent||'agente'} · ${c[k].provider||'mock'} · ${c[k].model||'modelo'} · ${c[k].style}</span><p class="score">MarketMind Score: ${c[k].score}/100</p><pre id="text-${k}">${esc(v)}</pre><div class="actions"><button onclick="copyResult('${k}',this)">Copiar</button><button class="outline" onclick="variation('${k}','auto',this)">Dame otra</button><button class="outline" onclick="variation('${k}','premium',this)">Premium</button><button class="outline" onclick="variation('${k}','urgencia',this)">Urgencia</button><button class="outline" onclick="variation('${k}','inversor',this)">Inversor</button></div></div>`});results.innerHTML=h+'</div>'}
@@ -179,13 +179,13 @@ async function renderSources(){
  }catch(e){sourcesGrid.innerHTML='<p>No pude cargar fuentes MarketDNA.</p>'}
 }
 async function createProperty(){const title=newPropertyTitle.value.trim();if(!title){toast('Poné un título de propiedad');return}const url=newPropertyUrl.value.trim();try{await apiPost('/data/properties',{title,url,location:'Rosario',property_type:'Propiedad',price:'',notes:'Creada desde MarketProp'});newPropertyTitle.value='';newPropertyUrl.value='';toast('Propiedad guardada en base real');loadPropertiesReal();loadRealDataDashboard()}catch(e){toast('No se pudo guardar en base real')}}
-function renderAllDashboards(){renderCommandCenter();renderPipeline();renderCalendar();renderSources();loadPropertiesReal();loadRealDataDashboard()}
+function renderAllDashboards(){renderCommandCenter();renderPipeline();renderCalendar();renderSources();loadPropertiesReal();loadRealDataDashboard();/* admin-only: loadWorkspaceDashboard() */}
 function esc(t){return String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 
 
-// v0.3.9 SaaS Foundation - persistent data layer
-async function apiGet(path){const r=await fetch(API_URL+path);if(!r.ok)throw new Error(path);return await r.json()}
-async function apiPost(path,payload){const r=await fetch(API_URL+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!r.ok)throw new Error(path);return await r.json()}
+// v0.3.10.1 SaaS Foundation - persistent data layer
+async function apiGet(path){const r=await fetch(API_URL+path,{headers:{'x-workspace-id':String(currentWorkspaceId||1)}});if(!r.ok)throw new Error(path);return await r.json()}
+async function apiPost(path,payload){const r=await fetch(API_URL+path,{method:'POST',headers:{'Content-Type':'application/json','x-workspace-id':String(currentWorkspaceId||1)},body:JSON.stringify(payload)});if(!r.ok)throw new Error(path);return await r.json()}
 async function loadPropertiesReal(){
   if(!document.getElementById('propertyList')) return;
   try{const props=await apiGet('/data/properties');propertyList.innerHTML=props.map(p=>`<div class="source-card"><h3>${esc(p.title)}</h3><p>${esc(p.location||'Sin zona')} · ${esc(p.property_type||'Tipo')} · ${esc(p.price||'Sin precio')}</p><small>${esc(p.url||'Sin link')}</small></div>`).join('')}
@@ -213,7 +213,55 @@ async function loadRealDataDashboard(){
 }
 async function createDemoProperty(){
   const title='Propiedad nueva '+new Date().toLocaleTimeString();
-  await apiPost('/data/properties',{title,url:'https://www.ejemplo.com/propiedad-nueva',location:'Rosario',property_type:'Departamento',price:'USD 100.000',notes:'Creada desde la app en v0.3.9'});
+  await apiPost('/data/properties',{title,url:'https://www.ejemplo.com/propiedad-nueva',location:'Rosario',property_type:'Departamento',price:'USD 100.000',notes:'Creada desde la app en v0.3.10.1'});
   await apiPost('/data/pipeline',{property_title:title,platform:'Instagram',format:'Reel',objective:'Generar consulta',status:'Propiedad cargada',owner:'Agus',score:82,next_action:'Generar contenido multired',blocker:'Sin bloqueo',source:'Alta manual'});
   toast('Propiedad guardada en la base real local');loadPropertiesReal();loadRealDataDashboard();
+}
+
+
+// v0.3.10.1 Workspace / Multiuser Foundation
+async function /* admin-only: loadWorkspaceDashboard() */{
+  const holder=document.getElementById('workspaceContent'); if(!holder) return;
+  try{
+    const d=await apiGet('/workspace/current');
+    const plan=d.plan||{};
+    const contentLimit=plan.monthly_content_limit||500;
+    const aiLimit=plan.ai_credit_limit||100000;
+    const seatsLimit=plan.seats_limit||2;
+    const contentPct=Math.min(100,Math.round((d.usage.content_generated/contentLimit)*100));
+    const aiPct=Math.min(100,Math.round((d.usage.ai_credits_used/aiLimit)*100));
+    holder.innerHTML=`
+      <div class="workspace-hero">
+        <div><span class="pill">Workspace real local</span><h2>${esc(d.workspace.name)}</h2><p>Slug: ${esc(d.workspace.slug)} · Estado: ${esc(d.workspace.status)} · ID: ${d.workspace.id}</p></div>
+        <div class="score-orb">${esc(d.workspace.plan)}</div>
+      </div>
+      <div class="metric-grid command-metrics">
+        <div class="metric-card polished"><span>Miembros</span><b>${d.members.length}/${seatsLimit}</b><p>Usuarios del workspace</p><em>pre multiusuario</em></div>
+        <div class="metric-card polished"><span>Contenido mensual</span><b>${d.usage.content_generated}/${contentLimit}</b><p>Límite por plan</p><em>${contentPct}% usado</em></div>
+        <div class="metric-card polished"><span>Créditos IA</span><b>${d.usage.ai_credits_used}</b><p>Sobre ${aiLimit}</p><em>${aiPct}% usado</em></div>
+        <div class="metric-card polished"><span>Datos del workspace</span><b>${d.counts.properties+d.counts.contents+d.counts.pipeline+d.counts.calendar+d.counts.sources}</b><p>Registros separados</p><em>workspace_id</em></div>
+      </div>
+      <div class="command-grid polished-grid">
+        <div class="chart-card-soft"><div class="panel-head mini"><div><span class="pill">Equipo</span><h3>Miembros y roles</h3></div></div>${d.members.map(m=>`<div class="db-row"><b>${esc(m.name)} · ${esc(m.role)}</b><span>${esc(m.email)} · ${esc(m.status)}</span></div>`).join('')}</div>
+        <div class="chart-card-soft"><div class="panel-head mini"><div><span class="pill">Plan</span><h3>Suscripción preparada</h3></div></div>
+          <div class="db-row"><b>${esc(plan.plan_name||d.workspace.plan)} · ${esc(plan.status||'trial')}</b><span>Contenido: ${contentLimit}/mes · Créditos IA: ${aiLimit} · Seats: ${seatsLimit}</span></div>
+          <div class="quality-bar tiny"><span style="width:${contentPct}%"></span></div><small>Uso contenido ${contentPct}%</small>
+          <div class="quality-bar tiny"><span style="width:${aiPct}%"></span></div><small>Uso IA ${aiPct}%</small>
+        </div>
+      </div>
+      <div class="command-grid polished-grid">
+        <div class="chart-card-soft"><div class="panel-head mini"><div><span class="pill">Datos separados</span><h3>Conteo por entidad</h3></div></div>
+          ${Object.keys(d.counts).map(k=>`<div class="db-row"><b>${esc(k)}</b><span>${d.counts[k]} registros en este workspace</span></div>`).join('')}
+        </div>
+        <div class="chart-card-soft"><div class="panel-head mini"><div><span class="pill">Arquitectura</span><h3>Preparado para SaaS</h3></div></div>
+          <div class="db-row"><b>workspace_id</b><span>Propiedades, contenido, pipeline, calendario y MarketDNA quedan asociados a una inmobiliaria.</span></div>
+          <div class="db-row"><b>Roles</b><span>Owner / admin / member listo para evolucionar a permisos reales.</span></div>
+          <div class="db-row"><b>Planes</b><span>Básico, Pro y Business ya pueden tener límites separados.</span></div>
+        </div>
+      </div>`;
+  }catch(e){holder.innerHTML='<p>No pude cargar Workspace. Revisá backend.</p>'}
+}
+async function addDemoMember(){
+  const stamp=new Date().toLocaleTimeString().replaceAll(':','');
+  try{await apiPost('/workspace/members',{name:'Miembro demo '+stamp,email:'miembro'+stamp+'@marketprop.local',role:'member'});toast('Miembro demo agregado al workspace');/* admin-only: loadWorkspaceDashboard() */}catch(e){toast('No pude agregar miembro')}
 }

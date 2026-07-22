@@ -1,59 +1,52 @@
-# MarketProp v0.3.9 SaaS Foundation Database
+# MarketProp v0.3.10.1 Client/Admin Separation
 
-Versión acumulativa sobre v0.3.8.1.
+Hotfix profesional sobre v0.3.10.
 
-## Qué cambia realmente
+## Decisión central
 
-Esta versión empieza a convertir MarketProp de demo visual a estructura real de SaaS.
+La administración de clientes, usuarios, planes, límites y facturación no debe aparecer en el panel del cliente.
 
-## Mantiene
+## Panel Cliente
 
-- Command Center.
-- Métricas de redes.
-- Métricas inmobiliarias.
-- Pipeline.
-- Calendario.
-- MarketDNA Sources.
-- Generador.
-- Botones de variación.
-- Provider Gateway.
-- MarketMind.
-- Real AI Connector preparado.
+Abrir:
 
-## Agrega estructura real
+frontend/index.html
 
-- SQLite local.
-- Modelos de datos.
-- Schemas.
-- Seed inicial.
-- Endpoints CRUD.
-- Pantalla Base real.
+El cliente ve solo herramientas de marketing:
+- Generador
+- Command Center
+- Propiedades / base real
+- Pipeline
+- Calendario
+- MarketDNA
+- IG Ready
 
-## Datos persistentes
+## Panel Master Admin
 
-Ahora se guardan localmente:
+Abrir:
 
-- Propiedades.
-- Contenidos.
-- Pipeline.
-- Calendario.
-- MarketDNA Sources.
+admin/index.html
 
-La base se crea en:
+Solo para el dueño de MarketProp. Permite administrar:
+- Clientes / inmobiliarias
+- Usuarios
+- Roles
+- Planes
+- Límites
+- Facturación
+- Uso de IA
+- Seguridad
 
-backend/data/marketprop.db
+## Backend
 
-## Ejecutar
+Se mantiene la base multiworkspace de v0.3.10 porque es necesaria para una SaaS real, pero no se muestra en el panel del cliente.
 
-cd backend
-py -m pip install -r requirements.txt
-copy .env.example .env
-py -m uvicorn app.main:app --reload
+## Próximo paso
 
-Luego abrir frontend/index.html.
+v0.3.11 Auth + Roles + Permissions
 
-## Probar
-
-Entrar a la pestaña Base real.
-Apretar + Crear propiedad demo real.
-Cerrar y volver a abrir. La propiedad debe seguir guardada.
+Objetivo:
+- Login real.
+- Proteger panel admin.
+- Proteger panel cliente.
+- Diferenciar dueño/admin/cliente.

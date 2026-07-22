@@ -4,6 +4,9 @@ from app.marketmind.orchestrator import MarketMindOrchestrator
 from app.marketmind.providers.registry import registry
 from app.marketmind.analytics.mock_data import PIPELINE_DETAIL, PIPELINE_STATUSES, CALENDAR_DETAIL, MARKETDNA_SOURCES_DETAIL
 from app.marketmind.analytics.mock_data import COMMAND_CENTER, PIPELINE, CALENDAR, SOURCES
+from app.core.db import SessionLocal
+from app.core.models import Workspace, UserAccount, SubscriptionPlan
+from app.core.security import hash_password, verify_password, slugify
 
 router = APIRouter()
 marketmind = MarketMindOrchestrator()
@@ -35,20 +38,50 @@ class PropertyRequest(BaseModel):
 
 PROPERTIES = []
 
-def user(name="Agustín", org="Forja Propiedades"):
-    return {"name": name, "organization_name": org, "plan": "Plan Básico"}
+def user_payload(user: UserAccount, workspace: Workspace, plan: SubscriptionPlan | None = None):
+    return {
+        "id": user.id,
+        "workspace_id": workspace.id,
+        "name": user.name,
+        "email": user.email,
+        "organization_name": workspace.name,
+        "workspace_slug": workspace.slug,
+        "role": user.role,
+        "plan": plan.plan_name if plan else workspace.plan
+    }
 
 @router.post("/auth/login")
 def login(req: LoginRequest):
     if not req.email or not req.password:
         raise HTTPException(400, "Completá email y contraseña.")
-    return {"token": "demo-token", "user": user()}
+    with SessionLocal() as db:
+        found = db.query(UserAccount).filter(UserAccount.email == req.email).first()
+        if found and not verify_password(req.password, found.password_hash):
+            raise HTTPException(401, "Contraseña incorrecta.")
+        if not found:
+            found = db.query(UserAccount).filter(UserAccount.email == "demo@marketprop.com").first()
+        workspace = db.get(Workspace, found.workspace_id)
+        plan = db.query(SubscriptionPlan).filter(SubscriptionPlan.workspace_id == workspace.id).first()
+        return {"token": "demo-token", "user": user_payload(found, workspace, plan)}
 
 @router.post("/auth/register")
 def register(req: RegisterRequest):
     if not req.name or not req.organization_name or not req.email or not req.password:
         raise HTTPException(400, "Completá todos los campos.")
-    return {"token": "demo-token", "user": user(req.name, req.organization_name)}
+    with SessionLocal() as db:
+        if db.query(UserAccount).filter(UserAccount.email == req.email).first():
+            raise HTTPException(400, "Ese email ya está registrado.")
+        base_slug = slugify(req.organization_name)
+        slug = base_slug
+        n = 2
+        while db.query(Workspace).filter(Workspace.slug == slug).first():
+            slug = f"{base_slug}-{n}"; n += 1
+        workspace = Workspace(name=req.organization_name, slug=slug, plan="Básico", status="active")
+        db.add(workspace); db.flush()
+        usr = UserAccount(workspace_id=workspace.id, name=req.name, email=req.email, password_hash=hash_password(req.password), role="owner", status="active")
+        plan = SubscriptionPlan(workspace_id=workspace.id, plan_name="Básico", status="trial", monthly_content_limit=500, ai_credit_limit=100000, seats_limit=2)
+        db.add_all([usr, plan]); db.commit(); db.refresh(usr); db.refresh(workspace)
+        return {"token": "demo-token", "user": user_payload(usr, workspace, plan)}
 
 @router.post("/generate")
 async def generate(req: GenerateRequest):
@@ -65,7 +98,7 @@ async def variation(req: VariationRequest):
 
 @router.get("/marketmind/health")
 def health():
-    return {"marketmind": "active", "version": "0.3.9", "mode": "restore-metrics-social-logos"}
+    return {"marketmind": "active", "version": "0.3.10.1", "mode": "workspace-multiuser-foundation"}
 
 @router.get("/marketmind/providers")
 def providers():

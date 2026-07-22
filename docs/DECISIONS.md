@@ -28,3 +28,7 @@
 013 - v0.3.8.1: hotfix acumulativo para restaurar métricas anteriores y logos/badges de redes sin quitar lo agregado en v0.3.8.
 
 014 - v0.3.9: se inicia estructura real de SaaS con SQLite, persistencia local, entidades centrales y endpoints CRUD.
+
+015 - v0.3.10: se agrega base multiworkspace, usuarios, roles, planes y usage events para preparar MarketProp como SaaS multi-inmobiliaria.
+
+015 - v0.3.10.1: separación obligatoria entre panel cliente y panel master admin. Administración de clientes solo visible para Agustín/dueño de MarketProp.
