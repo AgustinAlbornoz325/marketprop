@@ -15,7 +15,7 @@
       <div class="tabs"><button id="loginTab" class="active" onclick="setAuth('login')">Ingresar</button><button id="registerTab" onclick="setAuth('register')">Crear cuenta</button></div>
       <div id="loginForm"><input id="loginEmail" placeholder="Email"><input id="loginPassword" type="password" placeholder="Contraseña"><button id="loginBtn" onclick="login()">Entrar</button></div>
       <div id="registerForm" class="hidden"><input id="regName" placeholder="Tu nombre"><input id="regOrg" placeholder="Nombre de tu inmobiliaria"><input id="regEmail" placeholder="Email"><input id="regPassword" type="password" placeholder="Contraseña"><button id="registerBtn" onclick="register()">Crear cuenta</button></div>
-      <small>v0.3.12 Auth + Roles · Cliente demo: demo@marketprop.com / 123456 · Admin: admin@marketprop.com / admin123</small>
+      <small>v0.3.13 Usage + Plan Limits · Cliente demo: demo@marketprop.com / 123456 · Admin: admin@marketprop.com / admin123</small>
     </div>
   </div>
 </div>
@@ -35,6 +35,8 @@
       <button class="nav featured" onclick="show('hookAgent',this)">✦ Agente Hook</button>
       <button class="nav" onclick="show('campaigns',this)">◈ Campañas</button>
       <button class="nav" onclick="show('stats',this)">△ Estadísticas</button>
+      <button class="nav" onclick="show('permission-guard',this)">Permisos</button>
+      <button class="nav" onclick="show('usage-guard',this)">Uso / Plan</button>
       <button class="nav" onclick="show('igReady',this)">IG Ready</button>
       <button class="nav featured" onclick="show('realData',this)">▣ Base real</button>
     </nav>
@@ -84,10 +86,10 @@
       <div id="realDataContent" class="command-content"><p>Cargando base de datos local...</p></div>
     </section>
   
-<section id="permission-guard" class="screen">
+<section id="permission-guard" class="section panel">
   <div class="panel-head">
     <div>
-      <span class="pill">v0.3.12 · Permissions Enforcement</span>
+      <span class="pill">v0.3.13 · Usage Metering Plan Limits</span>
       <h2>Permisos activos</h2>
       <p>Tu rol define qué acciones puede ejecutar tu cuenta. Esto ya viene validado por backend.</p>
     </div>
@@ -95,6 +97,18 @@
   <div id="permissionGuardContent">
     <p>Cargando permisos...</p>
   </div>
+</section>
+
+
+<section id="usage-guard" class="section panel">
+  <div class="panel-head">
+    <div>
+      <span class="pill">v0.3.13 · Usage Metering</span>
+      <h2>Uso del plan</h2>
+      <p>Control de contenidos, créditos IA y límites del workspace.</p>
+    </div>
+  </div>
+  <div id="usageGuardContent"><p>Cargando uso del plan...</p></div>
 </section>
 
 </main>

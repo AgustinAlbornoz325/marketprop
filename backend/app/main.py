@@ -8,7 +8,7 @@ from app.core.db import Base, engine, SessionLocal
 from app.core.seed import seed_database
 from app.core.migrations import run_light_migrations
 
-app = FastAPI(title="MarketProp API", version="0.3.12 Permissions Enforcement")
+app = FastAPI(title="MarketProp API", version="0.3.13 Usage Metering Plan Limits")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 Base.metadata.create_all(bind=engine)
 run_light_migrations(engine)
@@ -22,4 +22,4 @@ app.include_router(admin_router, prefix="/api")
 
 @app.get("/")
 def root():
-    return {"app": "MarketProp", "version": "0.3.12 Permissions Enforcement", "status": "running"}
+    return {"app": "MarketProp", "version": "0.3.13 Usage Metering Plan Limits", "status": "running"}

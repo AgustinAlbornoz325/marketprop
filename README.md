@@ -1,14 +1,14 @@
-# MarketProp v0.3.12 Permissions Enforcement + UX Guardrails
+# MarketProp v0.3.13 Usage Metering + Plan Limits
 
-Versión acumulativa sobre v0.3.11.2.
+Versión acumulativa sobre v0.3.12.
 
 ## Mantiene
 - Auth estable.
-- Admin Master funcionando.
-- Panel cliente funcionando.
-- Separación cliente/admin.
-- Base real local.
+- Permisos reales.
+- Admin Master.
+- Panel cliente.
 - Workspaces.
+- Base real local.
 - MarketMind.
 - Command Center.
 - Pipeline.
@@ -17,26 +17,22 @@ Versión acumulativa sobre v0.3.11.2.
 - IG Ready.
 
 ## Agrega
-- Permisos reales en backend.
-- Endpoint `/api/data/permissions`.
-- Validación por rol.
-- UX guardrails en el panel cliente.
-- Mensajes claros cuando un usuario no tiene permiso.
-- Bloqueo real con error 403 si intenta ejecutar acciones sensibles.
+- Medición de uso por workspace.
+- Límites por plan.
+- Bloqueo por plan inactivo.
+- Bloqueo por límite de contenidos.
+- Bloqueo por créditos IA.
+- Endpoint `/api/data/usage`.
+- Nueva pestaña cliente: Uso / Plan.
+- Admin Master con vista de uso por cliente.
 
-## Roles
-
-### super_admin
-Dueño de MarketProp. Accede al Admin Master.
-
-### owner
-Dueño de una inmobiliaria cliente.
-
-### admin
-Administrador interno de una inmobiliaria.
-
-### member
-Usuario limitado. Puede generar contenido, pero no administrar datos base.
+## Qué se mide
+- Contenidos generados.
+- Créditos IA usados.
+- Propiedades creadas.
+- Pipeline creado.
+- Calendario creado.
+- Fuentes MarketDNA creadas.
 
 ## Credenciales demo
 
@@ -55,20 +51,27 @@ Empleado member:
 empleado@marketprop.com  
 123456
 
-## Probar
-
-1. Encender backend.
-2. Entrar como `demo@marketprop.com`.
-3. Revisar panel cliente.
-4. Entrar como `empleado@marketprop.com`.
-5. Verificar que no pueda crear datos base.
-6. Abrir `admin/index.html`.
-7. Entrar con `admin@marketprop.com`.
-8. Verificar Admin Master.
-
 ## Ejecutar
 
 cd backend
 py -m pip install -r requirements.txt
 copy .env.example .env
 py -m uvicorn app.main:app --reload
+
+Luego abrir:
+
+frontend/index.html
+
+y también:
+
+admin/index.html
+
+## Guardar en Git
+
+Commit recomendado:
+
+MarketProp v0.3.13 Usage Metering Plan Limits
+
+Tag:
+
+v0.3.13

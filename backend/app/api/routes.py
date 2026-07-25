@@ -8,6 +8,7 @@ from app.core.db import SessionLocal
 from app.core.models import Workspace, UserAccount, SubscriptionPlan
 from app.core.security import hash_password, verify_password, slugify
 from app.core.auth_tokens import issue_token, current_user_from_request
+from app.core.usage import assert_can_consume, record_usage, EVENT_CONTENT_GENERATED, EVENT_AI_CREDITS_USED, AI_CREDITS_BY_ACTION
 
 router = APIRouter()
 marketmind = MarketMindOrchestrator()
@@ -97,21 +98,34 @@ def me(request: Request):
 
 
 @router.post("/generate")
-async def generate(req: GenerateRequest):
+async def generate(req: GenerateRequest, request: Request):
     if not req.url.startswith(("http://", "https://")):
         raise HTTPException(400, "Pegá un link válido que empiece con http:// o https://")
-    return marketmind.generate(req.url, req.style)
+    with SessionLocal() as db:
+        user = current_user_from_request(request, db)
+        ai_credits = AI_CREDITS_BY_ACTION["generate"]
+        assert_can_consume(db, user.workspace_id, content_units=1, ai_credits=ai_credits)
+        result = marketmind.generate(req.url, req.style)
+        record_usage(db, user, EVENT_CONTENT_GENERATED, 1, "generate")
+        record_usage(db, user, EVENT_AI_CREDITS_USED, ai_credits, "generate")
+        return result
 
 @router.post("/variation")
-async def variation(req: VariationRequest):
+async def variation(req: VariationRequest, request: Request):
     try:
-        return marketmind.variation(req.platform, req.property_data, req.style)
+        with SessionLocal() as db:
+            user = current_user_from_request(request, db)
+            ai_credits = AI_CREDITS_BY_ACTION["variation"]
+            assert_can_consume(db, user.workspace_id, content_units=0, ai_credits=ai_credits)
+            result = marketmind.variation(req.platform, req.property_data, req.style)
+            record_usage(db, user, EVENT_AI_CREDITS_USED, ai_credits, "variation")
+            return result
     except ValueError as e:
         raise HTTPException(400, str(e))
 
 @router.get("/marketmind/health")
 def health():
-    return {"marketmind": "active", "version": "0.3.12", "mode": "auth-roles-permissions"}
+    return {"marketmind": "active", "version": "0.3.13", "mode": "usage-metering-plan-limits"}
 
 @router.get("/marketmind/providers")
 def providers():

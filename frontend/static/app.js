@@ -43,14 +43,14 @@ function enter(){
  const rb=document.getElementById('roleBadge'); if(rb) rb.innerText=currentUser.role||'cliente';
  applyPermissions();
  toast('Bienvenido a MarketProp');
- renderAllDashboards(); loadPermissions().then(renderPermissionPanel);
+ renderAllDashboards(); loadPermissions().then(renderPermissionPanel); loadUsageDashboard();
 }
 function logout(){localStorage.removeItem('marketprop_token');localStorage.removeItem('marketprop_user');location.reload()}
-function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));document.getElementById(id).classList.add('active-section');document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));if(btn)btn.classList.add('active'); if(['command','pipeline','calendar','sources','stats'].includes(id)) renderAllDashboards(); loadPermissions().then(renderPermissionPanel); if(id==='realData') loadRealDataDashboard(); if(id==='workspace') loadWorkspaceDashboard()}
+function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));document.getElementById(id).classList.add('active-section');document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));if(btn)btn.classList.add('active'); if(['command','pipeline','calendar','sources','stats'].includes(id)) renderAllDashboards(); loadPermissions().then(renderPermissionPanel); loadUsageDashboard(); if(id==='realData') loadRealDataDashboard(); if(id==='usage-guard') loadUsageDashboard(); if(id==='workspace') loadWorkspaceDashboard()}
 function notifySoon(){toast('Función preparada para el próximo sprint.')}
-async function generateContent(){const url=propertyUrl.value.trim();if(!url){toast('Pegá el link de una propiedad.');return}if(!url.startsWith('http://')&&!url.startsWith('https://')){toast('El link debe empezar con http:// o https://');return}results.innerHTML='<h3>Contenido</h3><p>Generando contenido con MarketMind...</p>';scan.innerHTML='';status.innerText='MarketMind está coordinando agentes...';load(generateBtn,true);for(const s of ['Agente Propiedad analiza el link','Agente Copy define el enfoque','MarketMind elige agente, proveedor y modelo','Agente Evaluador puntúa calidad','Contenido listo']){await new Promise(r=>setTimeout(r,220));scan.innerHTML+='✓ '+s+'<br>'}try{const r=await fetch(API_URL+'/generate',{method:'POST',headers:{'Content-Type':'application/json',...authHeader()},body:JSON.stringify({url,style:globalStyle.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'No se pudo generar');currentProperty=d.property;renderResults(d.content);status.innerText='Contenido generado correctamente.';toast('Contenido generado')}catch(e){toast(e.message||'Error al generar');status.innerText='Error'}finally{load(generateBtn,false)}}
+async function generateContent(){const url=propertyUrl.value.trim();if(!url){toast('Pegá el link de una propiedad.');return}if(!url.startsWith('http://')&&!url.startsWith('https://')){toast('El link debe empezar con http:// o https://');return}results.innerHTML='<h3>Contenido</h3><p>Generando contenido con MarketMind...</p>';scan.innerHTML='';status.innerText='MarketMind está coordinando agentes...';load(generateBtn,true);for(const s of ['Agente Propiedad analiza el link','Agente Copy define el enfoque','MarketMind elige agente, proveedor y modelo','Agente Evaluador puntúa calidad','Contenido listo']){await new Promise(r=>setTimeout(r,220));scan.innerHTML+='✓ '+s+'<br>'}try{const r=await fetch(API_URL+'/generate',{method:'POST',headers:{'Content-Type':'application/json',...authHeader()},body:JSON.stringify({url,style:globalStyle.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'No se pudo generar');currentProperty=d.property;renderResults(d.content);status.innerText='Contenido generado correctamente.';toast('Contenido generado'); loadUsageDashboard()}catch(e){toast(e.message||'Error al generar');status.innerText='Error'}finally{load(generateBtn,false)}}
 function renderResults(c){const names={facebook:'Facebook',instagram:'Instagram',tiktok:'TikTok',whatsapp:'WhatsApp',mercado_libre:'Mercado Libre',meta_ads:'Meta Ads'};const logos={facebook:'f',instagram:'IG',tiktok:'TK',whatsapp:'WA',mercado_libre:'ML',meta_ads:'Meta'};let h='<h3>Contenido generado</h3><div class="result-grid">';Object.keys(c).forEach(k=>{let v=c[k].text;if(typeof v==='object')v=JSON.stringify(v,null,2);h+=`<div class="result-card"><h3 class="platform-title"><span class="platform-logo ${k}">${logos[k]}</span>${names[k]}</h3><span class="style-badge">${c[k].agent||'agente'} · ${c[k].provider||'mock'} · ${c[k].model||'modelo'} · ${c[k].style}</span><p class="score">MarketMind Score: ${c[k].score}/100</p><pre id="text-${k}">${esc(v)}</pre><div class="actions"><button onclick="copyResult('${k}',this)">Copiar</button><button class="outline" onclick="variation('${k}','auto',this)">Dame otra</button><button class="outline" onclick="variation('${k}','premium',this)">Premium</button><button class="outline" onclick="variation('${k}','urgencia',this)">Urgencia</button><button class="outline" onclick="variation('${k}','inversor',this)">Inversor</button></div></div>`});results.innerHTML=h+'</div>'}
-async function variation(platform,style,btn){if(!currentProperty){toast('Primero generá contenido.');return}try{load(btn,true);const r=await fetch(API_URL+'/variation',{method:'POST',headers:{'Content-Type':'application/json',...authHeader()},body:JSON.stringify({platform,property_data:currentProperty,style})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');let v=d.variation.text;if(typeof v==='object')v=JSON.stringify(v,null,2);document.getElementById('text-'+platform).innerText=v;if(btn){const oldText=btn.innerHTML;btn.innerHTML='✓ Actualizado';setTimeout(()=>btn.innerHTML=oldText,1200)}toast('Nueva variación generada')}catch(e){toast(e.message||'Error')}finally{load(btn,false)}}
+async function variation(platform,style,btn){if(!currentProperty){toast('Primero generá contenido.');return}try{load(btn,true);const r=await fetch(API_URL+'/variation',{method:'POST',headers:{'Content-Type':'application/json',...authHeader()},body:JSON.stringify({platform,property_data:currentProperty,style})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');let v=d.variation.text;if(typeof v==='object')v=JSON.stringify(v,null,2);document.getElementById('text-'+platform).innerText=v;if(btn){const oldText=btn.innerHTML;btn.innerHTML='✓ Actualizado';setTimeout(()=>btn.innerHTML=oldText,1200)}toast('Nueva variación generada'); loadUsageDashboard()}catch(e){toast(e.message||'Error')}finally{load(btn,false)}}
 function copyResult(k,btn){const el=document.getElementById('text-'+k);if(!el){toast('No hay contenido');return}navigator.clipboard.writeText(el.innerText).then(()=>{const old=btn.innerHTML;btn.innerHTML='✓ Copiado';btn.classList.add('copied');setTimeout(()=>{btn.innerHTML=old;btn.classList.remove('copied')},1400);toast('Copiado')})}
 async function runHookAgent(){if(!hookPrompt.value.trim()){toast('Escribí una idea para Agente Hook.');return}hookAgentResult.innerHTML='Agente Hook está analizando...';await new Promise(r=>setTimeout(r,650));hookAgentResult.innerHTML='<b>Agente Hook</b><br><br>No empezaría mostrando la propiedad. Empezaría con una tensión o curiosidad.<br><br><b>Hook recomendado:</b><br>“Antes de comprar una propiedad, mirá este detalle que casi nadie revisa.”<br><br><b>Hook Score:</b> 92/100<br><b>Índice de novedad:</b> 88/100<br><b>Saturación:</b> 19/100<br><br><b>Mi consejo:</b> usalo como primera frase del Reel y recién después mostrás la propiedad.';toast('Agente Hook respondió')}
 async function loadProviderStatus(){try{const r=await fetch(API_URL+'/marketmind/providers',{headers:authHeader()});const d=await r.json();toast(`Demo: ${d.demo_mode} · OpenAI: ${d.providers.openai.available} · Claude: ${d.providers.anthropic.available} · Gemini: ${d.providers.gemini.available}`)}catch(e){toast('No pude leer proveedores')}}
@@ -217,13 +217,13 @@ async function renderSources(){
   </div>`).join('')
  }catch(e){sourcesGrid.innerHTML='<p>No pude cargar fuentes MarketDNA.</p>'}
 }
-async function createProperty(){const title=newPropertyTitle.value.trim();if(!title){toast('Poné un título de propiedad');return}const url=newPropertyUrl.value.trim();try{await apiPost('/data/properties',{title,url,location:'Rosario',property_type:'Propiedad',price:'',notes:'Creada desde MarketProp'});newPropertyTitle.value='';newPropertyUrl.value='';toast('Propiedad guardada en base real');loadPropertiesReal();loadRealDataDashboard()}catch(e){toast('No se pudo guardar en base real')}}
+async function createProperty(){const title=newPropertyTitle.value.trim();if(!title){toast('Poné un título de propiedad');return}const url=newPropertyUrl.value.trim();try{await apiPost('/data/properties',{title,url,location:'Rosario',property_type:'Propiedad',price:'',notes:'Creada desde MarketProp'});newPropertyTitle.value='';newPropertyUrl.value='';toast('Propiedad guardada en base real');loadPropertiesReal();loadRealDataDashboard();loadUsageDashboard()}catch(e){toast('No se pudo guardar en base real')}}
 function renderAllDashboards(){renderCommandCenter();renderPipeline();renderCalendar();renderSources();loadPropertiesReal();loadRealDataDashboard();loadWorkspaceDashboard()}
 function esc(t){return String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 
 
-// v0.3.12 SaaS Foundation - persistent data layer
-async function apiGet(path){const r=await fetch(API_URL+path,{headers:{...authHeader(),'x-workspace-id':String(currentWorkspaceId||1)}});if(!r.ok)throw new Error(path);return await r.json()}
+// v0.3.13 SaaS Foundation - persistent data layer
+async function apiGet(path){const r=await fetch(API_URL+path,{headers:{...authHeader(),'x-workspace-id':String(currentWorkspaceId||1)}});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.detail||path);return d}
 async function apiPost(path,payload){const r=await fetch(API_URL+path,{method:'POST',headers:{'Content-Type':'application/json',...authHeader(),'x-workspace-id':String(currentWorkspaceId||1)},body:JSON.stringify(payload)});const d=await r.json().catch(()=>({}));if(!r.ok){throw new Error(d.detail||path)}return d}
 async function loadPropertiesReal(){
   if(!document.getElementById('propertyList')) return;
@@ -252,13 +252,13 @@ async function loadRealDataDashboard(){
 }
 async function createDemoProperty(){
   const title='Propiedad nueva '+new Date().toLocaleTimeString();
-  await apiPost('/data/properties',{title,url:'https://www.ejemplo.com/propiedad-nueva',location:'Rosario',property_type:'Departamento',price:'USD 100.000',notes:'Creada desde la app en v0.3.12'});
+  await apiPost('/data/properties',{title,url:'https://www.ejemplo.com/propiedad-nueva',location:'Rosario',property_type:'Departamento',price:'USD 100.000',notes:'Creada desde la app en v0.3.13'});
   await apiPost('/data/pipeline',{property_title:title,platform:'Instagram',format:'Reel',objective:'Generar consulta',status:'Propiedad cargada',owner:'Agus',score:82,next_action:'Generar contenido multired',blocker:'Sin bloqueo',source:'Alta manual'});
-  toast('Propiedad guardada en la base real local');loadPropertiesReal();loadRealDataDashboard();
+  toast('Propiedad guardada en la base real local');loadPropertiesReal();loadRealDataDashboard();loadUsageDashboard();
 }
 
 
-// v0.3.12 Workspace / Multiuser Foundation
+// v0.3.13 Workspace / Multiuser Foundation
 async function loadWorkspaceDashboard(){
   const holder=document.getElementById('workspaceContent'); if(!holder) return;
   try{
@@ -366,4 +366,33 @@ function renderPermissionPanel(){
       <p>Estas reglas vienen del backend, no solo del diseño visual.</p>
       <div class="source-grid">${rules.map(r=>`<div class="insight-card"><span>Permiso</span><p>${esc(r)}</p></div>`).join('')}</div>
     </div>`;
+}
+
+
+async function loadUsageDashboard(){
+  const holder=document.getElementById('usageGuardContent');
+  try{
+    const u=await apiGet('/data/usage');
+    const usageCard=document.querySelector('.usage-card');
+    if(usageCard){
+      usageCard.innerHTML=`<div class="usage-top"><b>${esc(u.plan)}</b><span>${esc(u.content_pct)}%</span></div><p>Contenido generado este mes</p><div class="bar"><span style="width:${Math.min(u.content_pct,100)}%"></span></div><small>${u.content_used} / ${u.monthly_content_limit} publicaciones · ${u.ai_credits_used}/${u.ai_credit_limit} IA</small>`;
+    }
+    if(!holder) return;
+    holder.innerHTML=`
+      <div class="metric-grid command-metrics">
+        <div class="metric-card polished"><span>Plan</span><b>${esc(u.plan)}</b><p>${esc(u.status)}</p><em>workspace</em></div>
+        <div class="metric-card polished"><span>Contenidos usados</span><b>${u.content_used}/${u.monthly_content_limit}</b><p>${u.content_remaining} disponibles</p><em>${u.content_pct}%</em></div>
+        <div class="metric-card polished"><span>Créditos IA usados</span><b>${u.ai_credits_used}/${u.ai_credit_limit}</b><p>${u.ai_credits_remaining} disponibles</p><em>${u.ai_pct}%</em></div>
+        <div class="metric-card polished"><span>Usuarios permitidos</span><b>${u.seats_limit}</b><p>Límite de usuarios del plan</p><em>seats</em></div>
+      </div>
+      <div class="chart-card-soft">
+        <span class="pill">Plan Limits</span>
+        <h3>Control de uso SaaS</h3>
+        <p>MarketProp empieza a medir uso por inmobiliaria para poder cobrar planes, controlar consumo de IA y evitar abuso.</p>
+        <div class="funnel-list">
+          <div class="funnel-row"><div><b>Contenido mensual</b><span>${u.content_used} de ${u.monthly_content_limit}</span></div><div class="quality-bar small"><span style="width:${Math.min(u.content_pct,100)}%"></span></div></div>
+          <div class="funnel-row"><div><b>Créditos IA</b><span>${u.ai_credits_used} de ${u.ai_credit_limit}</span></div><div class="quality-bar small"><span style="width:${Math.min(u.ai_pct,100)}%"></span></div></div>
+        </div>
+      </div>`;
+  }catch(e){ if(holder) holder.innerHTML='<p>No pude cargar uso del plan. Revisá sesión/backend.</p>'; }
 }

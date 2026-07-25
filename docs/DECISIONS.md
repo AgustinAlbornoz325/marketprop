@@ -40,3 +40,5 @@
 018 - v0.3.11.2: versión estable oficial que reemplaza v0.3.11 rota e incluye el fix funcional del Admin Master.
 
 019 - v0.3.12: permisos reales en backend para roles super_admin, owner, admin y member; UX guardrails en panel cliente.
+
+020 - v0.3.13: se agrega medición de uso y límites por plan/workspace para preparar billing real.

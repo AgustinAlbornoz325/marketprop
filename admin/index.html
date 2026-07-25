@@ -63,7 +63,7 @@
     </aside>
     <main class="admin-main">
       <section class="admin-hero">
-        <span class="badge">v0.3.12 · Permissions Enforcement</span>
+        <span class="badge">v0.3.13 · Usage Metering + Plan Limits</span>
         <h1>Panel Master Admin</h1>
         <p class="note">Administra clientes, planes, usuarios, límites, facturación y uso de IA desde una capa separada y protegida.</p>
       </section>
@@ -77,7 +77,7 @@
         <div class="admin-panel">
           <h2>Clientes / inmobiliarias</h2>
           <table class="admin-table">
-            <thead><tr><th>Inmobiliaria</th><th>Plan</th><th>Estado</th><th>Usuarios</th><th>Datos</th></tr></thead>
+            <thead><tr><th>Inmobiliaria</th><th>Plan</th><th>Estado</th><th>Usuarios</th><th>Datos</th><th>Uso</th></tr></thead>
             <tbody id="clientsBody"></tbody>
           </table>
         </div>
@@ -146,7 +146,7 @@ async function loadAdmin(){
     ['Clientes totales',d.kpis.clients_total],
     ['Modo','Protegido']
   ].map(x=>`<div class="admin-card"><span>${esc(x[0])}</span><b>${esc(x[1])}</b><p class="note">Admin Master</p></div>`).join('');
-  el('clientsBody').innerHTML=d.clients.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.plan)}</td><td><span class="badge success">${esc(c.status)}</span></td><td>${c.users}</td><td>${c.properties+c.contents+c.pipeline+c.calendar+c.sources}</td></tr>`).join('');
+  el('clientsBody').innerHTML=d.clients.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.plan)}</td><td><span class="badge success">${esc(c.status)}</span></td><td>${c.users}</td><td>${c.properties+c.contents+c.pipeline+c.calendar+c.sources}</td><td>${c.usage?.content_used||0}/${c.usage?.monthly_content_limit||0} contenidos · ${c.usage?.ai_credits_used||0}/${c.usage?.ai_credit_limit||0} IA</td></tr>`).join('');
   el('plansBody').innerHTML=d.plans.map(p=>`<tr><td>${p.workspace_id}</td><td>${esc(p.plan_name)}</td><td><span class="badge">${esc(p.status)}</span></td><td>${p.monthly_content_limit}</td><td>${p.ai_credit_limit}</td><td>${p.seats_limit}</td></tr>`).join('');
   el('usageText').innerText=`Contenido generado: ${d.kpis.content_generated}. Créditos IA usados: ${d.kpis.ai_credits_used}.`;
   el('adminStatus').innerText='Datos cargados desde backend protegido por rol super_admin.';

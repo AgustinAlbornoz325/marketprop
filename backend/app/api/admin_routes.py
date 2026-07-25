@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.core.usage import usage_snapshot
 from app.core.auth_tokens import current_user_from_request, require_role
 from app.core.models import (
     Workspace,
@@ -57,6 +58,7 @@ def overview(request: Request, db: Session = Depends(get_db)):
                 "pipeline": db.query(PipelineItem).filter(PipelineItem.workspace_id == w.id).count(),
                 "calendar": db.query(CalendarItem).filter(CalendarItem.workspace_id == w.id).count(),
                 "sources": db.query(MarketDNASource).filter(MarketDNASource.workspace_id == w.id).count(),
+                "usage": usage_snapshot(db, w.id),
             }
             for w in workspaces
         ],

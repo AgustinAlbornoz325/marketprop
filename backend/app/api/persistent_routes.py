@@ -10,10 +10,16 @@ from app.core.schemas import (
     CalendarCreate, CalendarOut,
     SourceCreate, SourceOut
 )
-from app.core.auth_tokens import (
-    current_user_from_request,
-    require_workspace_manager,
-    require_workspace_owner,
+from app.core.auth_tokens import current_user_from_request, require_workspace_manager, require_workspace_owner
+from app.core.usage import (
+    usage_snapshot,
+    assert_can_consume,
+    record_usage,
+    EVENT_CONTENT_GENERATED,
+    EVENT_PROPERTY_CREATED,
+    EVENT_CALENDAR_CREATED,
+    EVENT_MARKETDNA_SOURCE_CREATED,
+    EVENT_PIPELINE_CREATED,
 )
 
 router = APIRouter(prefix="/data", tags=["persistent-data"])
@@ -50,19 +56,16 @@ def permissions(request: Request, db: Session = Depends(get_db)):
                 "No puede modificar fuentes MarketDNA.",
                 "No puede administrar usuarios, planes ni facturación."
             ],
-            "admin": [
-                "Puede gestionar propiedades, pipeline, calendario y fuentes.",
-                "No puede acceder al Admin Master global."
-            ],
-            "owner": [
-                "Puede administrar su inmobiliaria.",
-                "No puede ver clientes de MarketProp ni facturación global."
-            ],
-            "super_admin": [
-                "Puede acceder al Admin Master y ver datos globales."
-            ]
+            "admin": ["Puede gestionar propiedades, pipeline, calendario y fuentes.", "No puede acceder al Admin Master global."],
+            "owner": ["Puede administrar su inmobiliaria.", "No puede ver clientes de MarketProp ni facturación global."],
+            "super_admin": ["Puede acceder al Admin Master y ver datos globales."]
         }
     }
+
+@router.get("/usage")
+def usage(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    return usage_snapshot(db, user.workspace_id)
 
 @router.get("/properties", response_model=list[PropertyOut])
 def list_properties(request: Request, db: Session = Depends(get_db)):
@@ -82,6 +85,7 @@ def create_property(payload: PropertyCreate, request: Request, db: Session = Dep
     db.add(item)
     db.commit()
     db.refresh(item)
+    record_usage(db, user, EVENT_PROPERTY_CREATED, 1, "property")
     return item
 
 @router.delete("/properties/{item_id}")
@@ -105,12 +109,14 @@ def list_contents(request: Request, db: Session = Depends(get_db)):
 @router.post("/contents", response_model=ContentOut)
 def create_content(payload: ContentCreate, request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
+    assert_can_consume(db, user.workspace_id, content_units=1, ai_credits=0)
     data = payload.model_dump()
     data["workspace_id"] = user.workspace_id
     item = ContentItem(**data)
     db.add(item)
     db.commit()
     db.refresh(item)
+    record_usage(db, user, EVENT_CONTENT_GENERATED, 1, "manual_content")
     return item
 
 @router.get("/pipeline", response_model=list[PipelineOut])
@@ -131,6 +137,7 @@ def create_pipeline(payload: PipelineCreate, request: Request, db: Session = Dep
     db.add(item)
     db.commit()
     db.refresh(item)
+    record_usage(db, user, EVENT_PIPELINE_CREATED, 1, "pipeline")
     return item
 
 @router.patch("/pipeline/{item_id}/status")
@@ -161,6 +168,7 @@ def create_calendar(payload: CalendarCreate, request: Request, db: Session = Dep
     db.add(item)
     db.commit()
     db.refresh(item)
+    record_usage(db, user, EVENT_CALENDAR_CREATED, 1, "calendar")
     return item
 
 @router.get("/sources", response_model=list[SourceOut])
@@ -181,4 +189,5 @@ def create_source(payload: SourceCreate, request: Request, db: Session = Depends
     db.add(item)
     db.commit()
     db.refresh(item)
+    record_usage(db, user, EVENT_MARKETDNA_SOURCE_CREATED, 1, "marketdna_source")
     return item
