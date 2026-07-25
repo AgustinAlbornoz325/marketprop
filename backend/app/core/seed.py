@@ -14,6 +14,12 @@ def seed_database(db: Session):
     if not db.query(UserAccount).filter(UserAccount.email == "demo@marketprop.com").first():
         db.add(UserAccount(workspace_id=workspace.id, name="Agustín", email="demo@marketprop.com", password_hash=hash_password("123456"), role="owner", status="active"))
 
+    if not db.query(UserAccount).filter(UserAccount.email == "admin@marketprop.com").first():
+        db.add(UserAccount(workspace_id=workspace.id, name="Agustín Admin", email="admin@marketprop.com", password_hash=hash_password("admin123"), role="super_admin", status="active"))
+
+    if not db.query(UserAccount).filter(UserAccount.email == "empleado@marketprop.com").first():
+        db.add(UserAccount(workspace_id=workspace.id, name="Empleado Demo", email="empleado@marketprop.com", password_hash=hash_password("123456"), role="member", status="active"))
+
     if not db.query(SubscriptionPlan).filter(SubscriptionPlan.workspace_id == workspace.id).first():
         db.add(SubscriptionPlan(workspace_id=workspace.id, plan_name="Básico", status="trial", monthly_content_limit=500, ai_credit_limit=100000, seats_limit=2))
 

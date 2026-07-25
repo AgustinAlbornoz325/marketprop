@@ -1,20 +1,59 @@
-const API_URL='http://127.0.0.1:8000/api';let currentProperty=null,currentUser=null,currentWorkspaceId=1;
+const API_URL='http://127.0.0.1:8000/api';
+let permissionState=null;let currentProperty=null,currentUser=null,currentWorkspaceId=1,authToken=localStorage.getItem('marketprop_token')||'';
 const pipelineStatuses=['Propiedad cargada','Contenido generado','Revisión pendiente','Aprobado','Publicado','Midiendo'];
+function authHeader(){return authToken?{'Authorization':'Bearer '+authToken}:{}}
 function toast(msg){const t=document.getElementById('toast');t.innerText=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2600)}
 function load(btn,on){if(!btn)return;if(on){btn.dataset.old=btn.innerHTML;btn.disabled=true;btn.innerHTML='Procesando...'}else{btn.disabled=false;btn.innerHTML=btn.dataset.old||btn.innerHTML}}
 function setAuth(m){document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));if(m==='login'){loginTab.classList.add('active');loginForm.classList.remove('hidden');registerForm.classList.add('hidden')}else{registerTab.classList.add('active');registerForm.classList.remove('hidden');loginForm.classList.add('hidden')}}
-async function login(){try{if(!loginEmail.value||!loginPassword.value){toast('Completá email y contraseña.');return}load(loginBtn,true);const r=await fetch(API_URL+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail.value,password:loginPassword.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');currentUser=d.user;enter()}catch(e){toast(e.message||'No se pudo iniciar sesión')}finally{load(loginBtn,false)}}
-async function register(){try{if(!regName.value||!regOrg.value||!regEmail.value||!regPassword.value){toast('Completá todos los campos.');return}load(registerBtn,true);const r=await fetch(API_URL+'/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:regName.value,organization_name:regOrg.value,email:regEmail.value,password:regPassword.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');currentUser=d.user;enter()}catch(e){toast(e.message||'No se pudo crear cuenta')}finally{load(registerBtn,false)}}
-function enter(){currentWorkspaceId=currentUser.workspace_id||1;localStorage.setItem('marketprop_workspace_id',currentWorkspaceId);authScreen.classList.add('hidden');appScreen.classList.remove('hidden');welcomeTitle.innerText='Hola, '+(currentUser.organization_name||currentUser.name);orgName.innerText=currentUser.organization_name;planName.innerText=currentUser.plan;toast('Bienvenido a MarketProp');renderAllDashboards();/* admin-only: loadWorkspaceDashboard() */}
-function logout(){location.reload()}
-function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));document.getElementById(id).classList.add('active-section');document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));if(btn)btn.classList.add('active'); if(['command','pipeline','calendar','sources','stats'].includes(id)) renderAllDashboards(); if(id==='realData') loadRealDataDashboard(); if(id==='workspace') /* admin-only: loadWorkspaceDashboard() */}
+async function login(){
+ try{
+  if(!loginEmail.value||!loginPassword.value){toast('Completá email y contraseña.');return}
+  load(loginBtn,true);
+  const r=await fetch(API_URL+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail.value,password:loginPassword.value})});
+  const d=await r.json(); if(!r.ok)throw new Error(d.detail||'Error');
+  authToken=d.token; currentUser=d.user;
+  localStorage.setItem('marketprop_token',authToken);
+  localStorage.setItem('marketprop_user',JSON.stringify(currentUser));
+  routeByRole();
+ }catch(e){toast(e.message||'No se pudo iniciar sesión')}finally{load(loginBtn,false)}
+}
+async function register(){
+ try{
+  if(!regName.value||!regOrg.value||!regEmail.value||!regPassword.value){toast('Completá todos los campos.');return}
+  load(registerBtn,true);
+  const r=await fetch(API_URL+'/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:regName.value,organization_name:regOrg.value,email:regEmail.value,password:regPassword.value})});
+  const d=await r.json(); if(!r.ok)throw new Error(d.detail||'Error');
+  authToken=d.token; currentUser=d.user;
+  localStorage.setItem('marketprop_token',authToken);
+  localStorage.setItem('marketprop_user',JSON.stringify(currentUser));
+  routeByRole();
+ }catch(e){toast(e.message||'No se pudo crear cuenta')}finally{load(registerBtn,false)}
+}
+function routeByRole(){
+ if(currentUser&&currentUser.role==='super_admin'){window.location.href='../admin/index.html';return}
+ enter();
+}
+function enter(){
+ currentWorkspaceId=currentUser.workspace_id||1;
+ localStorage.setItem('marketprop_workspace_id',currentWorkspaceId);
+ authScreen.classList.add('hidden');appScreen.classList.remove('hidden');
+ welcomeTitle.innerText='Hola, '+(currentUser.organization_name||currentUser.name);
+ orgName.innerText=currentUser.organization_name||'Tu inmobiliaria';
+ planName.innerText=currentUser.plan||'Plan Básico';
+ const rb=document.getElementById('roleBadge'); if(rb) rb.innerText=currentUser.role||'cliente';
+ applyPermissions();
+ toast('Bienvenido a MarketProp');
+ renderAllDashboards(); loadPermissions().then(renderPermissionPanel);
+}
+function logout(){localStorage.removeItem('marketprop_token');localStorage.removeItem('marketprop_user');location.reload()}
+function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));document.getElementById(id).classList.add('active-section');document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));if(btn)btn.classList.add('active'); if(['command','pipeline','calendar','sources','stats'].includes(id)) renderAllDashboards(); loadPermissions().then(renderPermissionPanel); if(id==='realData') loadRealDataDashboard(); if(id==='workspace') loadWorkspaceDashboard()}
 function notifySoon(){toast('Función preparada para el próximo sprint.')}
-async function generateContent(){const url=propertyUrl.value.trim();if(!url){toast('Pegá el link de una propiedad.');return}if(!url.startsWith('http://')&&!url.startsWith('https://')){toast('El link debe empezar con http:// o https://');return}results.innerHTML='<h3>Contenido</h3><p>Generando contenido con MarketMind...</p>';scan.innerHTML='';status.innerText='MarketMind está coordinando agentes...';load(generateBtn,true);for(const s of ['Agente Propiedad analiza el link','Agente Copy define el enfoque','MarketMind elige agente, proveedor y modelo','Agente Evaluador puntúa calidad','Contenido listo']){await new Promise(r=>setTimeout(r,220));scan.innerHTML+='✓ '+s+'<br>'}try{const r=await fetch(API_URL+'/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,style:globalStyle.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'No se pudo generar');currentProperty=d.property;renderResults(d.content);status.innerText='Contenido generado correctamente.';toast('Contenido generado')}catch(e){toast(e.message||'Error al generar');status.innerText='Error'}finally{load(generateBtn,false)}}
+async function generateContent(){const url=propertyUrl.value.trim();if(!url){toast('Pegá el link de una propiedad.');return}if(!url.startsWith('http://')&&!url.startsWith('https://')){toast('El link debe empezar con http:// o https://');return}results.innerHTML='<h3>Contenido</h3><p>Generando contenido con MarketMind...</p>';scan.innerHTML='';status.innerText='MarketMind está coordinando agentes...';load(generateBtn,true);for(const s of ['Agente Propiedad analiza el link','Agente Copy define el enfoque','MarketMind elige agente, proveedor y modelo','Agente Evaluador puntúa calidad','Contenido listo']){await new Promise(r=>setTimeout(r,220));scan.innerHTML+='✓ '+s+'<br>'}try{const r=await fetch(API_URL+'/generate',{method:'POST',headers:{'Content-Type':'application/json',...authHeader()},body:JSON.stringify({url,style:globalStyle.value})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'No se pudo generar');currentProperty=d.property;renderResults(d.content);status.innerText='Contenido generado correctamente.';toast('Contenido generado')}catch(e){toast(e.message||'Error al generar');status.innerText='Error'}finally{load(generateBtn,false)}}
 function renderResults(c){const names={facebook:'Facebook',instagram:'Instagram',tiktok:'TikTok',whatsapp:'WhatsApp',mercado_libre:'Mercado Libre',meta_ads:'Meta Ads'};const logos={facebook:'f',instagram:'IG',tiktok:'TK',whatsapp:'WA',mercado_libre:'ML',meta_ads:'Meta'};let h='<h3>Contenido generado</h3><div class="result-grid">';Object.keys(c).forEach(k=>{let v=c[k].text;if(typeof v==='object')v=JSON.stringify(v,null,2);h+=`<div class="result-card"><h3 class="platform-title"><span class="platform-logo ${k}">${logos[k]}</span>${names[k]}</h3><span class="style-badge">${c[k].agent||'agente'} · ${c[k].provider||'mock'} · ${c[k].model||'modelo'} · ${c[k].style}</span><p class="score">MarketMind Score: ${c[k].score}/100</p><pre id="text-${k}">${esc(v)}</pre><div class="actions"><button onclick="copyResult('${k}',this)">Copiar</button><button class="outline" onclick="variation('${k}','auto',this)">Dame otra</button><button class="outline" onclick="variation('${k}','premium',this)">Premium</button><button class="outline" onclick="variation('${k}','urgencia',this)">Urgencia</button><button class="outline" onclick="variation('${k}','inversor',this)">Inversor</button></div></div>`});results.innerHTML=h+'</div>'}
-async function variation(platform,style,btn){if(!currentProperty){toast('Primero generá contenido.');return}try{load(btn,true);const r=await fetch(API_URL+'/variation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform,property_data:currentProperty,style})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');let v=d.variation.text;if(typeof v==='object')v=JSON.stringify(v,null,2);document.getElementById('text-'+platform).innerText=v;if(btn){const oldText=btn.innerHTML;btn.innerHTML='✓ Actualizado';setTimeout(()=>btn.innerHTML=oldText,1200)}toast('Nueva variación generada')}catch(e){toast(e.message||'Error')}finally{load(btn,false)}}
+async function variation(platform,style,btn){if(!currentProperty){toast('Primero generá contenido.');return}try{load(btn,true);const r=await fetch(API_URL+'/variation',{method:'POST',headers:{'Content-Type':'application/json',...authHeader()},body:JSON.stringify({platform,property_data:currentProperty,style})});const d=await r.json();if(!r.ok)throw new Error(d.detail||'Error');let v=d.variation.text;if(typeof v==='object')v=JSON.stringify(v,null,2);document.getElementById('text-'+platform).innerText=v;if(btn){const oldText=btn.innerHTML;btn.innerHTML='✓ Actualizado';setTimeout(()=>btn.innerHTML=oldText,1200)}toast('Nueva variación generada')}catch(e){toast(e.message||'Error')}finally{load(btn,false)}}
 function copyResult(k,btn){const el=document.getElementById('text-'+k);if(!el){toast('No hay contenido');return}navigator.clipboard.writeText(el.innerText).then(()=>{const old=btn.innerHTML;btn.innerHTML='✓ Copiado';btn.classList.add('copied');setTimeout(()=>{btn.innerHTML=old;btn.classList.remove('copied')},1400);toast('Copiado')})}
 async function runHookAgent(){if(!hookPrompt.value.trim()){toast('Escribí una idea para Agente Hook.');return}hookAgentResult.innerHTML='Agente Hook está analizando...';await new Promise(r=>setTimeout(r,650));hookAgentResult.innerHTML='<b>Agente Hook</b><br><br>No empezaría mostrando la propiedad. Empezaría con una tensión o curiosidad.<br><br><b>Hook recomendado:</b><br>“Antes de comprar una propiedad, mirá este detalle que casi nadie revisa.”<br><br><b>Hook Score:</b> 92/100<br><b>Índice de novedad:</b> 88/100<br><b>Saturación:</b> 19/100<br><br><b>Mi consejo:</b> usalo como primera frase del Reel y recién después mostrás la propiedad.';toast('Agente Hook respondió')}
-async function loadProviderStatus(){try{const r=await fetch(API_URL+'/marketmind/providers');const d=await r.json();toast(`Demo: ${d.demo_mode} · OpenAI: ${d.providers.openai.available} · Claude: ${d.providers.anthropic.available} · Gemini: ${d.providers.gemini.available}`)}catch(e){toast('No pude leer proveedores')}}
+async function loadProviderStatus(){try{const r=await fetch(API_URL+'/marketmind/providers',{headers:authHeader()});const d=await r.json();toast(`Demo: ${d.demo_mode} · OpenAI: ${d.providers.openai.available} · Claude: ${d.providers.anthropic.available} · Gemini: ${d.providers.gemini.available}`)}catch(e){toast('No pude leer proveedores')}}
 async function renderCommandCenter(){
  try{
   const r=await fetch(API_URL+'/analytics/command-center');
@@ -179,13 +218,13 @@ async function renderSources(){
  }catch(e){sourcesGrid.innerHTML='<p>No pude cargar fuentes MarketDNA.</p>'}
 }
 async function createProperty(){const title=newPropertyTitle.value.trim();if(!title){toast('Poné un título de propiedad');return}const url=newPropertyUrl.value.trim();try{await apiPost('/data/properties',{title,url,location:'Rosario',property_type:'Propiedad',price:'',notes:'Creada desde MarketProp'});newPropertyTitle.value='';newPropertyUrl.value='';toast('Propiedad guardada en base real');loadPropertiesReal();loadRealDataDashboard()}catch(e){toast('No se pudo guardar en base real')}}
-function renderAllDashboards(){renderCommandCenter();renderPipeline();renderCalendar();renderSources();loadPropertiesReal();loadRealDataDashboard();/* admin-only: loadWorkspaceDashboard() */}
+function renderAllDashboards(){renderCommandCenter();renderPipeline();renderCalendar();renderSources();loadPropertiesReal();loadRealDataDashboard();loadWorkspaceDashboard()}
 function esc(t){return String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 
 
-// v0.3.10.1 SaaS Foundation - persistent data layer
-async function apiGet(path){const r=await fetch(API_URL+path,{headers:{'x-workspace-id':String(currentWorkspaceId||1)}});if(!r.ok)throw new Error(path);return await r.json()}
-async function apiPost(path,payload){const r=await fetch(API_URL+path,{method:'POST',headers:{'Content-Type':'application/json','x-workspace-id':String(currentWorkspaceId||1)},body:JSON.stringify(payload)});if(!r.ok)throw new Error(path);return await r.json()}
+// v0.3.12 SaaS Foundation - persistent data layer
+async function apiGet(path){const r=await fetch(API_URL+path,{headers:{...authHeader(),'x-workspace-id':String(currentWorkspaceId||1)}});if(!r.ok)throw new Error(path);return await r.json()}
+async function apiPost(path,payload){const r=await fetch(API_URL+path,{method:'POST',headers:{'Content-Type':'application/json',...authHeader(),'x-workspace-id':String(currentWorkspaceId||1)},body:JSON.stringify(payload)});const d=await r.json().catch(()=>({}));if(!r.ok){throw new Error(d.detail||path)}return d}
 async function loadPropertiesReal(){
   if(!document.getElementById('propertyList')) return;
   try{const props=await apiGet('/data/properties');propertyList.innerHTML=props.map(p=>`<div class="source-card"><h3>${esc(p.title)}</h3><p>${esc(p.location||'Sin zona')} · ${esc(p.property_type||'Tipo')} · ${esc(p.price||'Sin precio')}</p><small>${esc(p.url||'Sin link')}</small></div>`).join('')}
@@ -213,14 +252,14 @@ async function loadRealDataDashboard(){
 }
 async function createDemoProperty(){
   const title='Propiedad nueva '+new Date().toLocaleTimeString();
-  await apiPost('/data/properties',{title,url:'https://www.ejemplo.com/propiedad-nueva',location:'Rosario',property_type:'Departamento',price:'USD 100.000',notes:'Creada desde la app en v0.3.10.1'});
+  await apiPost('/data/properties',{title,url:'https://www.ejemplo.com/propiedad-nueva',location:'Rosario',property_type:'Departamento',price:'USD 100.000',notes:'Creada desde la app en v0.3.12'});
   await apiPost('/data/pipeline',{property_title:title,platform:'Instagram',format:'Reel',objective:'Generar consulta',status:'Propiedad cargada',owner:'Agus',score:82,next_action:'Generar contenido multired',blocker:'Sin bloqueo',source:'Alta manual'});
   toast('Propiedad guardada en la base real local');loadPropertiesReal();loadRealDataDashboard();
 }
 
 
-// v0.3.10.1 Workspace / Multiuser Foundation
-async function /* admin-only: loadWorkspaceDashboard() */{
+// v0.3.12 Workspace / Multiuser Foundation
+async function loadWorkspaceDashboard(){
   const holder=document.getElementById('workspaceContent'); if(!holder) return;
   try{
     const d=await apiGet('/workspace/current');
@@ -263,5 +302,68 @@ async function /* admin-only: loadWorkspaceDashboard() */{
 }
 async function addDemoMember(){
   const stamp=new Date().toLocaleTimeString().replaceAll(':','');
-  try{await apiPost('/workspace/members',{name:'Miembro demo '+stamp,email:'miembro'+stamp+'@marketprop.local',role:'member'});toast('Miembro demo agregado al workspace');/* admin-only: loadWorkspaceDashboard() */}catch(e){toast('No pude agregar miembro')}
+  try{await apiPost('/workspace/members',{name:'Miembro demo '+stamp,email:'miembro'+stamp+'@marketprop.local',role:'member'});toast('Miembro demo agregado al workspace');loadWorkspaceDashboard()}catch(e){toast('No pude agregar miembro')}
+}
+
+
+function applyPermissions(){
+  if(!currentUser) return;
+  const isMember=currentUser.role==='member';
+  const createButtons=[document.querySelector('#props button'),document.querySelector('#realData button')].filter(Boolean);
+  createButtons.forEach(b=>{
+    if(isMember){b.disabled=true;b.title='Tu rol puede ver y usar contenido, pero no crear datos base.'}
+  });
+}
+
+async function bootSession(){
+  if(!authToken) return;
+  try{
+    const r=await fetch(API_URL+'/auth/me',{headers:authHeader()});
+    if(!r.ok) throw new Error('Sesión vencida');
+    const d=await r.json();
+    currentUser=d.user;
+    localStorage.setItem('marketprop_user',JSON.stringify(currentUser));
+    routeByRole();
+  }catch(e){
+    localStorage.removeItem('marketprop_token');
+    localStorage.removeItem('marketprop_user');
+  }
+}
+document.addEventListener('DOMContentLoaded',bootSession);
+
+
+async function loadPermissions(){
+  try{
+    permissionState=await apiGet('/data/permissions');
+    const rb=document.getElementById('roleBadge');
+    if(rb) rb.innerText=(permissionState.role||currentUser?.role||'cliente')+' · permisos activos';
+    applyPermissions();
+  }catch(e){
+    console.warn('No pude cargar permisos',e);
+  }
+}
+
+function guardAction(permissionName,message){
+  if(!permissionState) return true;
+  if(permissionState[permissionName]) return true;
+  toast(message||'Tu rol no tiene permiso para esta acción');
+  return false;
+}
+
+async function tryRestrictedDemo(){
+  if(!guardAction('can_manage_workspace','Tu rol puede usar MarketProp, pero no administrar datos base.')) return;
+  await createDemoProperty();
+}
+
+function renderPermissionPanel(){
+  const holder=document.getElementById('permissionGuardContent');
+  if(!holder||!permissionState) return;
+  const rules=permissionState.rules?.[permissionState.role]||[];
+  holder.innerHTML=`
+    <div class="chart-card-soft">
+      <span class="pill">Rol actual</span>
+      <h3>${esc(permissionState.role)}</h3>
+      <p>Estas reglas vienen del backend, no solo del diseño visual.</p>
+      <div class="source-grid">${rules.map(r=>`<div class="insight-card"><span>Permiso</span><p>${esc(r)}</p></div>`).join('')}</div>
+    </div>`;
 }

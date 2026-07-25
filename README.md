@@ -1,52 +1,74 @@
-# MarketProp v0.3.10.1 Client/Admin Separation
+# MarketProp v0.3.12 Permissions Enforcement + UX Guardrails
 
-Hotfix profesional sobre v0.3.10.
+Versión acumulativa sobre v0.3.11.2.
 
-## Decisión central
+## Mantiene
+- Auth estable.
+- Admin Master funcionando.
+- Panel cliente funcionando.
+- Separación cliente/admin.
+- Base real local.
+- Workspaces.
+- MarketMind.
+- Command Center.
+- Pipeline.
+- Calendario.
+- MarketDNA.
+- IG Ready.
 
-La administración de clientes, usuarios, planes, límites y facturación no debe aparecer en el panel del cliente.
+## Agrega
+- Permisos reales en backend.
+- Endpoint `/api/data/permissions`.
+- Validación por rol.
+- UX guardrails en el panel cliente.
+- Mensajes claros cuando un usuario no tiene permiso.
+- Bloqueo real con error 403 si intenta ejecutar acciones sensibles.
 
-## Panel Cliente
+## Roles
 
-Abrir:
+### super_admin
+Dueño de MarketProp. Accede al Admin Master.
 
-frontend/index.html
+### owner
+Dueño de una inmobiliaria cliente.
 
-El cliente ve solo herramientas de marketing:
-- Generador
-- Command Center
-- Propiedades / base real
-- Pipeline
-- Calendario
-- MarketDNA
-- IG Ready
+### admin
+Administrador interno de una inmobiliaria.
 
-## Panel Master Admin
+### member
+Usuario limitado. Puede generar contenido, pero no administrar datos base.
 
-Abrir:
+## Credenciales demo
 
-admin/index.html
+Admin Master:
 
-Solo para el dueño de MarketProp. Permite administrar:
-- Clientes / inmobiliarias
-- Usuarios
-- Roles
-- Planes
-- Límites
-- Facturación
-- Uso de IA
-- Seguridad
+admin@marketprop.com  
+admin123
 
-## Backend
+Cliente owner:
 
-Se mantiene la base multiworkspace de v0.3.10 porque es necesaria para una SaaS real, pero no se muestra en el panel del cliente.
+demo@marketprop.com  
+123456
 
-## Próximo paso
+Empleado member:
 
-v0.3.11 Auth + Roles + Permissions
+empleado@marketprop.com  
+123456
 
-Objetivo:
-- Login real.
-- Proteger panel admin.
-- Proteger panel cliente.
-- Diferenciar dueño/admin/cliente.
+## Probar
+
+1. Encender backend.
+2. Entrar como `demo@marketprop.com`.
+3. Revisar panel cliente.
+4. Entrar como `empleado@marketprop.com`.
+5. Verificar que no pueda crear datos base.
+6. Abrir `admin/index.html`.
+7. Entrar con `admin@marketprop.com`.
+8. Verificar Admin Master.
+
+## Ejecutar
+
+cd backend
+py -m pip install -r requirements.txt
+copy .env.example .env
+py -m uvicorn app.main:app --reload

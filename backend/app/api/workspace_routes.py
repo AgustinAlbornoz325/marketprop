@@ -4,10 +4,13 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.models import Workspace, UserAccount, SubscriptionPlan, UsageEvent, Property, ContentItem, PipelineItem, CalendarItem, MarketDNASource
 from app.core.security import slugify, hash_password
+from app.core.auth_tokens import current_user_from_request, require_role, require_workspace_manager, require_workspace_owner
 
 router = APIRouter(prefix="/workspace", tags=["workspace"])
 
-def workspace_id(request: Request) -> int:
+def workspace_id(request: Request, db: Session | None = None) -> int:
+    if db is not None and (request.headers.get("authorization") or "").lower().startswith("bearer "):
+        return current_user_from_request(request, db).workspace_id
     raw = request.headers.get("x-workspace-id") or request.query_params.get("workspace_id") or "1"
     try:
         return int(raw)
@@ -27,7 +30,7 @@ class WorkspaceCreate(BaseModel):
 
 @router.get("/current")
 def current_workspace(request: Request, db: Session = Depends(get_db)):
-    wid = workspace_id(request)
+    wid = workspace_id(request, db)
     workspace = db.get(Workspace, wid)
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace no encontrado")
@@ -57,7 +60,7 @@ def current_workspace(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/members")
 def add_member(payload: MemberCreate, request: Request, db: Session = Depends(get_db)):
-    wid = workspace_id(request)
+    wid = workspace_id(request, db)
     existing = db.query(UserAccount).filter(UserAccount.email == payload.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Ese email ya existe")

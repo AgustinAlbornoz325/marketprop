@@ -15,7 +15,7 @@
       <div class="tabs"><button id="loginTab" class="active" onclick="setAuth('login')">Ingresar</button><button id="registerTab" onclick="setAuth('register')">Crear cuenta</button></div>
       <div id="loginForm"><input id="loginEmail" placeholder="Email"><input id="loginPassword" type="password" placeholder="Contraseña"><button id="loginBtn" onclick="login()">Entrar</button></div>
       <div id="registerForm" class="hidden"><input id="regName" placeholder="Tu nombre"><input id="regOrg" placeholder="Nombre de tu inmobiliaria"><input id="regEmail" placeholder="Email"><input id="regPassword" type="password" placeholder="Contraseña"><button id="registerBtn" onclick="register()">Crear cuenta</button></div>
-      <small>v0.3.10.1 Client/Admin Separation</small>
+      <small>v0.3.12 Auth + Roles · Cliente demo: demo@marketprop.com / 123456 · Admin: admin@marketprop.com / admin123</small>
     </div>
   </div>
 </div>
@@ -37,14 +37,11 @@
       <button class="nav" onclick="show('stats',this)">△ Estadísticas</button>
       <button class="nav" onclick="show('igReady',this)">IG Ready</button>
       <button class="nav featured" onclick="show('realData',this)">▣ Base real</button>
-      <button class="nav featured" onclick="show('panel',this)">◉ Panel</button>
-      <button class="nav" onclick="show('admin',this)">◎ Panel Admin</button>
-      <button class="nav" onclick="show('plans',this)">◇ Planes</button>
     </nav>
     <div class="usage-card"><div class="usage-top"><b id="planName">Plan Básico</b><span>34%</span></div><p>Contenido generado este mes</p><div class="bar"><span></span></div><small>128 / 500 publicaciones</small></div>
   </aside>
   <main>
-    <header class="topbar"><div><p class="eyebrow">WORKSPACE DE MARKETING INMOBILIARIO</p><h1 id="welcomeTitle">Hola</h1></div><div class="top-actions"><button class="ghost" onclick="loadProviderStatus()">Proveedores</button><button class="ghost" onclick="logout()">Salir</button></div></header>
+    <header class="topbar"><div><p class="eyebrow">WORKSPACE DE MARKETING INMOBILIARIO</p><h1 id="welcomeTitle">Hola</h1></div><div class="top-actions"><button class="ghost" onclick="loadProviderStatus()">Proveedores</button><span id="roleBadge" class="role-badge">cliente</span><button class="ghost" onclick="logout()">Salir</button></div></header>
 
     <section id="home" class="section active-section">
       <div class="hero-card">
@@ -82,16 +79,25 @@
           <h2>Base real de MarketProp</h2>
           <p>Primer paso profesional: datos persistentes en SQLite. Propiedades, contenidos, pipeline, calendario y MarketDNA ya no son solo decoración.</p>
         </div>
-        <button onclick="createDemoProperty()">+ Crear propiedad demo real</button>
+        <button onclick="tryRestrictedDemo()">+ Crear propiedad demo real</button>
       </div>
       <div id="realDataContent" class="command-content"><p>Cargando base de datos local...</p></div>
     </section>
+  
+<section id="permission-guard" class="screen">
+  <div class="panel-head">
+    <div>
+      <span class="pill">v0.3.12 · Permissions Enforcement</span>
+      <h2>Permisos activos</h2>
+      <p>Tu rol define qué acciones puede ejecutar tu cuenta. Esto ya viene validado por backend.</p>
+    </div>
+  </div>
+  <div id="permissionGuardContent">
+    <p>Cargando permisos...</p>
+  </div>
+</section>
 
-    
-
-    
-    <section id="plans" class="section panel"><h2>Planes</h2><div class="pricing"><div><h3>Básico</h3><p>Agentes esenciales.</p></div><div><h3>Pro</h3><p>Command Center + métricas.</p></div><div><h3>Business</h3><p>IA real + equipo + permisos.</p></div></div></section>
-  </main>
+</main>
 </div>
 <script src="static/app.js"></script>
 </body>

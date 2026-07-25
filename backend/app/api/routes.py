@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from app.marketmind.orchestrator import MarketMindOrchestrator
 from app.marketmind.providers.registry import registry
@@ -7,6 +7,7 @@ from app.marketmind.analytics.mock_data import COMMAND_CENTER, PIPELINE, CALENDA
 from app.core.db import SessionLocal
 from app.core.models import Workspace, UserAccount, SubscriptionPlan
 from app.core.security import hash_password, verify_password, slugify
+from app.core.auth_tokens import issue_token, current_user_from_request
 
 router = APIRouter()
 marketmind = MarketMindOrchestrator()
@@ -56,13 +57,16 @@ def login(req: LoginRequest):
         raise HTTPException(400, "Completá email y contraseña.")
     with SessionLocal() as db:
         found = db.query(UserAccount).filter(UserAccount.email == req.email).first()
-        if found and not verify_password(req.password, found.password_hash):
-            raise HTTPException(401, "Contraseña incorrecta.")
         if not found:
-            found = db.query(UserAccount).filter(UserAccount.email == "demo@marketprop.com").first()
+            raise HTTPException(401, "Usuario no encontrado.")
+        if found.status not in ("active", "invited"):
+            raise HTTPException(403, "Usuario inactivo.")
+        if not verify_password(req.password, found.password_hash):
+            raise HTTPException(401, "Contraseña incorrecta.")
         workspace = db.get(Workspace, found.workspace_id)
         plan = db.query(SubscriptionPlan).filter(SubscriptionPlan.workspace_id == workspace.id).first()
-        return {"token": "demo-token", "user": user_payload(found, workspace, plan)}
+        return {"token": issue_token(found), "user": user_payload(found, workspace, plan)}
+
 
 @router.post("/auth/register")
 def register(req: RegisterRequest):
@@ -81,7 +85,16 @@ def register(req: RegisterRequest):
         usr = UserAccount(workspace_id=workspace.id, name=req.name, email=req.email, password_hash=hash_password(req.password), role="owner", status="active")
         plan = SubscriptionPlan(workspace_id=workspace.id, plan_name="Básico", status="trial", monthly_content_limit=500, ai_credit_limit=100000, seats_limit=2)
         db.add_all([usr, plan]); db.commit(); db.refresh(usr); db.refresh(workspace)
-        return {"token": "demo-token", "user": user_payload(usr, workspace, plan)}
+        return {"token": issue_token(usr), "user": user_payload(usr, workspace, plan)}
+
+@router.get("/auth/me")
+def me(request: Request):
+    with SessionLocal() as db:
+        user = current_user_from_request(request, db)
+        workspace = db.get(Workspace, user.workspace_id)
+        plan = db.query(SubscriptionPlan).filter(SubscriptionPlan.workspace_id == workspace.id).first()
+        return {"user": user_payload(user, workspace, plan)}
+
 
 @router.post("/generate")
 async def generate(req: GenerateRequest):
@@ -98,7 +111,7 @@ async def variation(req: VariationRequest):
 
 @router.get("/marketmind/health")
 def health():
-    return {"marketmind": "active", "version": "0.3.10.1", "mode": "workspace-multiuser-foundation"}
+    return {"marketmind": "active", "version": "0.3.12", "mode": "auth-roles-permissions"}
 
 @router.get("/marketmind/providers")
 def providers():

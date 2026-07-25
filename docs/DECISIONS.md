@@ -32,3 +32,11 @@
 015 - v0.3.10: se agrega base multiworkspace, usuarios, roles, planes y usage events para preparar MarketProp como SaaS multi-inmobiliaria.
 
 015 - v0.3.10.1: separación obligatoria entre panel cliente y panel master admin. Administración de clientes solo visible para Agustín/dueño de MarketProp.
+
+016 - v0.3.11: se agrega autenticación local realista con tokens firmados, roles y protección del panel Admin Master por super_admin.
+
+017 - v0.3.11.1: hotfix del login Admin Master por choque de nombres DOM/función en admin/index.html.
+
+018 - v0.3.11.2: versión estable oficial que reemplaza v0.3.11 rota e incluye el fix funcional del Admin Master.
+
+019 - v0.3.12: permisos reales en backend para roles super_admin, owner, admin y member; UX guardrails en panel cliente.
